@@ -1,0 +1,292 @@
+<!--miniprogram/pages/admin/questions/questions.wxml-->
+<view class="container">
+  <!-- 顶部导航 -->
+  <view class="nav-bar">
+    <view class="nav-back" bindtap="goBack">← 返回</view>
+    <text class="nav-title">题目管理</text>
+    <!-- 右上角操作按钮组 -->
+    <view class="nav-actions">
+      <!-- 排序模式：只显示"完成"按钮 -->
+      <view wx:if="{{sortMode}}" class="nav-action-btn sort-done" bindtap="exitSortMode">完成排序</view>
+      <!-- 普通模式：显示"调整顺序"和"批量删除" -->
+      <block wx:else>
+        <view class="nav-action-btn sort-btn" bindtap="enterSortMode">调整顺序</view>
+        <view class="nav-action-btn batch-btn" bindtap="{{batchMode ? 'exitBatchMode' : 'enterBatchMode'}}">
+          {{batchMode ? '取消' : '批量删除'}}
+        </view>
+      </block>
+    </view>
+  </view>
+
+  <!-- 批量操作工具栏（仅批量模式显示） -->
+  <view class="batch-toolbar" wx:if="{{batchMode}}">
+    <view class="batch-select-all" bindtap="toggleSelectAll">
+      <view class="checkbox {{selectedIndexes.length === questions.length && questions.length > 0 ? 'checked' : ''}}">
+        <text wx:if="{{selectedIndexes.length === questions.length && questions.length > 0}}">✓</text>
+      </view>
+      <text class="batch-label">全选（已选 {{selectedIndexes.length}} / {{questions.length}} 题）</text>
+    </view>
+    <view class="batch-delete-btn {{selectedIndexes.length > 0 ? 'active' : ''}}" bindtap="batchDelete">
+      <text>🗑 删除选中</text>
+    </view>
+  </view>
+
+  <!-- 排序提示条（仅排序模式显示） -->
+  <view class="sort-hint-bar" wx:if="{{sortMode}}">
+    <text class="sort-hint-text">📌 点击 ↑↓ 移动题目，点击「完成排序」保存</text>
+  </view>
+
+  <!-- 题目列表 -->
+  <view class="question-list">
+    <view class="list-header">
+      <text class="list-title">题目列表</text>
+      <text class="list-count">共 {{questions.length}} 题</text>
+    </view>
+
+    <view class="question-item {{batchMode && selectedIndexes.indexOf(index) > -1 ? ' selected' : ''}}{{sortMode ? ' sort-item' : ''}}"
+          wx:for="{{questions}}" wx:key="index"
+          bindtap="{{batchMode ? 'toggleSelect' : ''}}"
+          data-index="{{index}}">
+
+      <!-- 批量模式：左侧复选框 -->
+      <view class="item-checkbox-wrap" wx:if="{{batchMode}}">
+        <view class="checkbox {{selectedIndexes.indexOf(index) > -1 ? 'checked' : ''}}">
+          <text wx:if="{{selectedIndexes.indexOf(index) > -1}}">✓</text>
+        </view>
+      </view>
+
+      <!-- 排序模式：左侧排序号标识 -->
+      <view class="item-sort-handle" wx:if="{{sortMode}}">
+        <text class="sort-num">{{index + 1}}</text>
+      </view>
+
+      <!-- 题目主内容 -->
+      <view class="item-main">
+        <view class="item-header">
+          <text class="item-index">第{{index + 1}}题</text>
+          <text class="item-type item-type-{{item.type}}">{{getTypeName(item.type)}}</text>
+        </view>
+        <text class="item-content">{{item.content}}</text>
+        <view class="item-footer">
+          <text class="item-answer">答案：{{getAnswerText(item)}}</text>
+
+          <!-- 普通模式：编辑 / 删除 -->
+          <view class="item-actions" wx:if="{{!batchMode && !sortMode}}">
+            <text class="action-btn edit" bindtap="editQuestion" data-index="{{index}}">编辑</text>
+            <text class="action-btn delete" bindtap="deleteQuestion" data-index="{{index}}">删除</text>
+          </view>
+
+          <!-- 排序模式：移动按钮 -->
+          <view class="item-sort-btns" wx:if="{{sortMode}}">
+            <view class="sort-btn-item top {{index === 0 ? 'disabled' : ''}}"
+                  bindtap="moveToTop" data-index="{{index}}">⇈</view>
+            <view class="sort-btn-item up {{index === 0 ? 'disabled' : ''}}"
+                  bindtap="moveUp" data-index="{{index}}">↑</view>
+            <view class="sort-btn-item down {{index === questions.length - 1 ? 'disabled' : ''}}"
+                  bindtap="moveDown" data-index="{{index}}">↓</view>
+            <view class="sort-btn-item bottom {{index === questions.length - 1 ? 'disabled' : ''}}"
+                  bindtap="moveToBottom" data-index="{{index}}">⇊</view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="empty-state" wx:if="{{questions.length === 0}}">
+      <text class="empty-text">暂无题目，请点击下方按钮添加</text>
+    </view>
+  </view>
+
+  <!-- 底部按钮（普通模式且非批量模式才显示） -->
+  <view class="bottom-action" wx:if="{{!batchMode && !sortMode}}">
+    <!-- 第一行：导入 + 添加 -->
+    <view class="btn-row">
+      <button class="import-btn" bindtap="showImportModal">📥 批量导入</button>
+      <button class="add-btn" bindtap="showAddModal">+ 添加题目</button>
+    </view>
+    <!-- 第二行：保存 -->
+    <button class="save-btn" bindtap="manualSave">💾 保存题目</button>
+  </view>
+</view>
+
+
+
+<!-- 添加/编辑弹窗 -->
+<view class="modal-mask" wx:if="{{showModal}}" bindtap="hideModal">
+  <view class="modal-content" catchtap="stopPropagation">
+    <view class="modal-header">
+      <text class="modal-title">{{isEditing ? '编辑题目' : '添加题目'}}</text>
+      <text class="modal-close" bindtap="hideModal">×</text>
+    </view>
+
+    <scroll-view scroll-y class="modal-body">
+      <!-- 题型选择 -->
+      <view class="form-group">
+        <text class="form-label">题型</text>
+        <picker mode="selector" range="{{questionTypes}}" range-key="name" bindchange="onTypeChange">
+          <view class="picker-value">{{selectedTypeName}}</view>
+        </picker>
+      </view>
+
+      <!-- 题目内容 -->
+      <view class="form-group">
+        <text class="form-label">题目内容</text>
+        <textarea 
+          class="form-textarea" 
+          placeholder="请输入题目内容"
+          value="{{editForm.content}}"
+          bindinput="onContentInput"
+        />
+      </view>
+
+      <!-- 单选题选项 -->
+      <block wx:if="{{editForm.type === 'single'}}">
+        <view class="form-group">
+          <text class="form-label">选项A</text>
+          <input class="form-input" placeholder="请输入选项A" value="{{editForm.optionA}}" bindinput="onOptionAInput" />
+        </view>
+        <view class="form-group">
+          <text class="form-label">选项B</text>
+          <input class="form-input" placeholder="请输入选项B" value="{{editForm.optionB}}" bindinput="onOptionBInput" />
+        </view>
+        <view class="form-group">
+          <text class="form-label">选项C</text>
+          <input class="form-input" placeholder="请输入选项C" value="{{editForm.optionC}}" bindinput="onOptionCInput" />
+        </view>
+        <view class="form-group">
+          <text class="form-label">选项D</text>
+          <input class="form-input" placeholder="请输入选项D" value="{{editForm.optionD}}" bindinput="onOptionDInput" />
+        </view>
+        <view class="form-group">
+          <text class="form-label">正确答案（单选）</text>
+          <view class="answer-selector">
+            <view class="answer-btn {{editForm.correctAnswer === 'A' ? 'active' : ''}}" bindtap="selectAnswer" data-answer="A">A</view>
+            <view class="answer-btn {{editForm.correctAnswer === 'B' ? 'active' : ''}}" bindtap="selectAnswer" data-answer="B">B</view>
+            <view class="answer-btn {{editForm.correctAnswer === 'C' ? 'active' : ''}}" bindtap="selectAnswer" data-answer="C">C</view>
+            <view class="answer-btn {{editForm.correctAnswer === 'D' ? 'active' : ''}}" bindtap="selectAnswer" data-answer="D">D</view>
+          </view>
+        </view>
+      </block>
+
+      <!-- 多选题选项 -->
+      <block wx:if="{{editForm.type === 'multiple'}}">
+        <view class="form-hint" style="color: #f59e0b; margin-bottom: 20rpx;">请选择正确选项，可多选</view>
+        <view class="form-group">
+          <text class="form-label">选项A</text>
+          <input class="form-input" placeholder="请输入选项A" value="{{editForm.optionA}}" bindinput="onOptionAInput" />
+        </view>
+        <view class="form-group">
+          <text class="form-label">选项B</text>
+          <input class="form-input" placeholder="请输入选项B" value="{{editForm.optionB}}" bindinput="onOptionBInput" />
+        </view>
+        <view class="form-group">
+          <text class="form-label">选项C</text>
+          <input class="form-input" placeholder="请输入选项C" value="{{editForm.optionC}}" bindinput="onOptionCInput" />
+        </view>
+        <view class="form-group">
+          <text class="form-label">选项D</text>
+          <input class="form-input" placeholder="请输入选项D" value="{{editForm.optionD}}" bindinput="onOptionDInput" />
+        </view>
+        <view class="form-group">
+          <text class="form-label">正确答案（多选）</text>
+          <view class="answer-selector">
+            <view class="answer-btn {{editForm.correctAnswer && editForm.correctAnswer.indexOf('A') > -1 ? 'active' : ''}}" bindtap="toggleMultipleAnswer" data-answer="A">A</view>
+            <view class="answer-btn {{editForm.correctAnswer && editForm.correctAnswer.indexOf('B') > -1 ? 'active' : ''}}" bindtap="toggleMultipleAnswer" data-answer="B">B</view>
+            <view class="answer-btn {{editForm.correctAnswer && editForm.correctAnswer.indexOf('C') > -1 ? 'active' : ''}}" bindtap="toggleMultipleAnswer" data-answer="C">C</view>
+            <view class="answer-btn {{editForm.correctAnswer && editForm.correctAnswer.indexOf('D') > -1 ? 'active' : ''}}" bindtap="toggleMultipleAnswer" data-answer="D">D</view>
+          </view>
+          <text class="form-hint" wx:if="{{editForm.correctAnswer}}">已选：{{editForm.correctAnswer}}</text>
+        </view>
+      </block>
+
+      <!-- 判断题 -->
+      <block wx:if="{{editForm.type === 'judge'}}">
+        <view class="form-group">
+          <text class="form-label">正确答案</text>
+          <view class="answer-selector">
+            <view class="answer-btn {{editForm.correctAnswer === 'A' ? 'active' : ''}}" bindtap="selectAnswer" data-answer="A">正确</view>
+            <view class="answer-btn {{editForm.correctAnswer === 'B' ? 'active' : ''}}" bindtap="selectAnswer" data-answer="B">错误</view>
+          </view>
+        </view>
+      </block>
+
+      <!-- 填空题/问答题 -->
+      <block wx:if="{{editForm.type === 'fill' || editForm.type === 'essay'}}">
+        <view class="form-group">
+          <text class="form-label">标准答案</text>
+          <textarea 
+            class="form-textarea" 
+            placeholder="请输入标准答案"
+            value="{{editForm.correctText}}"
+            bindinput="onCorrectTextInput"
+          />
+          <text class="form-hint">学生提交的答案将与标准答案进行匹配</text>
+        </view>
+      </block>
+    </scroll-view>
+
+    <view class="modal-footer">
+      <button class="cancel-btn" bindtap="hideModal">取消</button>
+      <button class="save-btn" bindtap="saveQuestion">✅ 确认保存</button>
+    </view>
+  </view>
+</view>
+
+<!-- 批量导入弹窗 -->
+<view class="modal-mask" wx:if="{{showImportModal}}" bindtap="hideImportModal">
+  <view class="modal-content import-modal" catchtap="stopPropagation">
+    <view class="modal-header">
+      <text class="modal-title">📥 批量导入题目</text>
+      <text class="modal-close" bindtap="hideImportModal">×</text>
+    </view>
+
+    <scroll-view scroll-y class="modal-body">
+      <!-- 导入说明 -->
+      <view class="import-intro">
+        <text class="intro-title">📝 导入格式说明</text>
+        <text class="intro-text">💡 使用方法：</text>
+        <text class="intro-text">1. 点击下方「📋 复制示例」</text>
+        <text class="intro-text">2. 粘贴到Word中编辑你的题目</text>
+        <text class="intro-text">3. 编辑完成后全选复制</text>
+        <text class="intro-text">4. 粘贴到下方文本框</text>
+        <text class="intro-text">5. 点击「✅ 开始导入」</text>
+        <text class="intro-text"></text>
+        <text class="intro-text">📌 每道题格式如下，题目之间用【分隔】隔开：</text>
+        <view class="type-list">
+          <text>【单选】题目内容</text>
+          <text>A.选项A B.选项B C.选项C D.选项D</text>
+          <text>答案:B</text>
+          <text></text>
+          <text>【多选】题目内容</text>
+          <text>A.选项A B.选项B C.选项C D.选项D</text>
+          <text>答案:ACD（多选用字母组合）</text>
+          <text></text>
+          <text>【判断】题目内容 答案:正确/错误</text>
+          <text></text>
+          <text>【填空】题目内容 答案:标准答案</text>
+          <text></text>
+          <text>【问答】题目内容 答案:标准答案</text>
+        </view>
+      </view>
+
+      <!-- 示例模板 -->
+      <view class="template-section">
+        <view class="template-header">
+          <text class="template-title">📋 示例模板</text>
+          <text class="copy-example-btn" bindtap="copyExample">📋 复制示例</text>
+        </view>
+        <textarea 
+          class="template-textarea"
+          value="{{importTemplate}}"
+          bindinput="onImportTemplateInput"
+          placeholder="请粘贴题目..."
+          maxlength="20000"
+        />
+      </view>
+    </scroll-view>
+
+    <view class="modal-footer">
+      <button class="cancel-btn" bindtap="hideImportModal">取消</button>
+      <button class="import-confirm-btn" bindtap="confirmImport">✅ 开始导入</button>
+    </view>
+  </view>
+</view>

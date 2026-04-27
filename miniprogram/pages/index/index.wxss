@@ -1,0 +1,154 @@
+/* miniprogram/pages/index/index.wxss */
+.container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 0;
+}
+
+/* 页面标题 */
+.header {
+  padding: 100rpx 40rpx 40rpx;
+  text-align: center;
+}
+
+.app-title {
+  font-size: 48rpx;
+  font-weight: bold;
+  color: white;
+  display: block;
+  margin-bottom: 15rpx;
+  text-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.2);
+}
+
+.app-subtitle {
+  font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.9);
+  display: block;
+}
+
+/* 登录表单 */
+.login-form {
+  background: white;
+  border-radius: 40rpx 40rpx 0 0;
+  padding: 60rpx 50rpx;
+  min-height: calc(100vh - 400rpx);
+}
+
+/* 输入框组 */
+.input-group {
+  margin-bottom: 40rpx;
+}
+
+.input-label {
+  display: block;
+  font-size: 30rpx;
+  color: #333;
+  margin-bottom: 15rpx;
+  font-weight: 500;
+}
+
+.input-field {
+  height: 100rpx;
+  background: #f8f9fa;
+  border-radius: 20rpx;
+  padding: 0 30rpx;
+  font-size: 34rpx;
+  color: #333;
+  border: 2rpx solid #e9ecef;
+}
+
+.placeholder {
+  color: #adb5bd;
+}
+
+/* 考试须知 */
+.notice-wrapper {
+  margin: 50rpx 0;
+  padding: 0 10rpx;
+}
+
+.notice-label {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.notice-text {
+  font-size: 28rpx;
+  color: #666;
+  margin-left: 15rpx;
+}
+
+.notice-link {
+  font-size: 28rpx;
+  color: #667eea;
+  font-weight: 600;
+}
+
+/* 登录按钮 */
+.login-btn {
+  height: 110rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 55rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 40rpx;
+  box-shadow: 0 10rpx 30rpx rgba(102, 126, 234, 0.4);
+}
+
+.login-btn.disabled {
+  background: #dee2e6;
+  box-shadow: none;
+}
+
+.btn-text {
+  color: white;
+  font-size: 36rpx;
+  font-weight: bold;
+  letter-spacing: 4rpx;
+}
+
+.login-btn.disabled .btn-text {
+  color: #adb5bd;
+}
+
+/* 底部信息 */
+.footer {
+  position: fixed;
+  bottom: 40rpx;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 40rpx;
+}
+
+.footer-text {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* 管理后台固定按钮 - 底部左侧 */
+.admin-fixed-btn {
+  position: fixed;
+  left: 30rpx;
+  bottom: 150rpx;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 20rpx 30rpx;
+  border-radius: 50rpx;
+  display: flex;
+  align-items: center;
+  z-index: 999;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.3);
+}
+
+.admin-icon {
+  font-size: 28rpx;
+  margin-right: 10rpx;
+}
+
+.admin-text {
+  color: white;
+  font-size: 24rpx;
+}

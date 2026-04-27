@@ -1,0 +1,139 @@
+/* miniprogram/pages/login/login.wxss */
+.container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 0;
+  position: relative;
+}
+
+/* 返回按钮 */
+.back-btn {
+  position: fixed;
+  top: 60rpx;
+  left: 30rpx;
+  width: 70rpx;
+  height: 70rpx;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 35rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.back-icon {
+  color: white;
+  font-size: 36rpx;
+  font-weight: bold;
+}
+
+/* 页面标题 */
+.header {
+  padding: 120rpx 40rpx 60rpx;
+  text-align: center;
+  color: white;
+}
+
+.title {
+  font-size: 44rpx;
+  font-weight: bold;
+  margin-bottom: 15rpx;
+  display: block;
+}
+
+.subtitle {
+  font-size: 28rpx;
+  opacity: 0.9;
+  display: block;
+}
+
+/* 登录表单 */
+.login-form {
+  background: white;
+  border-radius: 40rpx 40rpx 0 0;
+  padding: 50rpx 40rpx;
+  min-height: calc(100vh - 300rpx);
+}
+
+/* 输入框组 */
+.input-group {
+  margin-bottom: 35rpx;
+}
+
+.input-label {
+  display: block;
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 15rpx;
+  font-weight: 500;
+}
+
+.input-field {
+  height: 90rpx;
+  background: #f8f9fa;
+  border-radius: 20rpx;
+  padding: 0 30rpx;
+  font-size: 32rpx;
+  color: #333;
+  border: 2rpx solid #e9ecef;
+}
+
+.input-field:focus {
+  border-color: #667eea;
+  background: white;
+}
+
+.placeholder {
+  color: #adb5bd;
+}
+
+/* 考试须知 */
+.notice-wrapper {
+  margin: 40rpx 0;
+  padding: 0 10rpx;
+}
+
+.notice-label {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.notice-text {
+  font-size: 26rpx;
+  color: #666;
+  margin-left: 10rpx;
+}
+
+.notice-link {
+  font-size: 26rpx;
+  color: #667eea;
+  font-weight: 500;
+}
+
+/* 登录按钮 */
+.login-btn {
+  height: 100rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 50rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 30rpx;
+  box-shadow: 0 10rpx 30rpx rgba(102, 126, 234, 0.4);
+}
+
+.login-btn.disabled {
+  background: #dee2e6;
+  box-shadow: none;
+}
+
+.btn-text {
+  color: white;
+  font-size: 34rpx;
+  font-weight: bold;
+}
+
+.login-btn.disabled .btn-text {
+  color: #adb5bd;
+}

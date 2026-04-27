@@ -1,0 +1,126 @@
+/* miniprogram/pages/admin/index/index.wxss */
+.container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #434343 0%, #000000 100%);
+  padding: 0;
+}
+
+.header {
+  padding: 150rpx 40rpx 80rpx;
+  text-align: center;
+  color: white;
+}
+
+.title {
+  font-size: 52rpx;
+  font-weight: bold;
+  margin-bottom: 15rpx;
+  display: block;
+}
+
+.subtitle {
+  font-size: 28rpx;
+  opacity: 0.8;
+  display: block;
+}
+
+.login-form {
+  background: white;
+  border-radius: 40rpx 40rpx 0 0;
+  padding: 60rpx 50rpx;
+  min-height: calc(100vh - 450rpx);
+}
+
+.input-group {
+  margin-bottom: 40rpx;
+}
+
+.input-label {
+  display: block;
+  font-size: 30rpx;
+  color: #333;
+  margin-bottom: 15rpx;
+  font-weight: 500;
+}
+
+.input-field {
+  height: 100rpx;
+  background: #f8f9fa;
+  border-radius: 20rpx;
+  padding: 0 30rpx;
+  font-size: 34rpx;
+  color: #333;
+  border: 2rpx solid #e9ecef;
+}
+
+.placeholder {
+  color: #adb5bd;
+}
+
+/* 密码输入框包装器 */
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input {
+  padding-right: 80rpx;
+}
+
+/* 眼睛按钮 */
+.eye-btn {
+  position: absolute;
+  right: 20rpx;
+  width: 60rpx;
+  height: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.eye-btn text {
+  font-size: 40rpx;
+}
+
+.error-tip {
+  background: #fff5f5;
+  color: #e53935;
+  padding: 20rpx;
+  border-radius: 10rpx;
+  margin-bottom: 30rpx;
+  font-size: 28rpx;
+  text-align: center;
+}
+
+.login-btn {
+  height: 100rpx;
+  background: linear-gradient(135deg, #434343 0%, #000000 100%);
+  border-radius: 50rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 30rpx;
+}
+
+.login-btn text {
+  color: white;
+  font-size: 34rpx;
+  font-weight: bold;
+}
+
+.back-btn {
+  height: 80rpx;
+  background: #f5f5f5;
+  border-radius: 40rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20rpx;
+}
+
+.back-btn text {
+  color: #666;
+  font-size: 28rpx;
+}

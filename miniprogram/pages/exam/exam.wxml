@@ -1,0 +1,180 @@
+<!-- miniprogram/pages/exam/exam.wxml - 修复题型分组显示问题 -->
+<view class="container">
+  <!-- 顶部信息栏 -->
+  <view class="top-bar">
+    <view class="top-left">
+      <text class="top-title">{{examTitle}}</text>
+    </view>
+    <view class="top-right">
+      <text class="time-icon">⏱️</text>
+      <text class="time-text">{{timeStr}}</text>
+    </view>
+  </view>
+
+  <!-- 题型选择栏 -->
+  <view class="type-selector">
+    <view class="type-btn {{currentType === 'all' ? 'active' : ''}}" bindtap="showAllQuestions">
+      全部
+      <text class="type-count">{{questions.length}}</text>
+    </view>
+    <view 
+      wx:for="{{typeStats}}" 
+      wx:key="type" 
+      class="type-btn type-{{item.type}} {{currentType === item.type ? 'active' : ''}}" 
+      bindtap="showTypeQuestions"
+      data-type="{{item.type}}"
+    >
+      {{item.icon}} {{item.name}}
+      <text class="type-count">{{item.count}}</text>
+    </view>
+  </view>
+
+  <!-- 题目内容 -->
+  <view class="question-content" wx:if="{{currentQuestion}}">
+    <!-- 题型标签 -->
+    <view class="question-type-tag type-tag-{{currentQuestion.type}}">
+      {{typeConfig[currentQuestion.type].name}}
+    </view>
+
+    <!-- 题目编号和内容 -->
+    <view class="question-header">
+      <text class="question-num">第 {{currentQuestion.globalIndex}} 题</text>
+      <text class="question-score">({{currentQuestion.type === 'single' || currentQuestion.type === 'judge' ? '5分' : '10分'}})</text>
+    </view>
+    <text class="question-text">{{currentQuestion.content}}</text>
+
+    <!-- 单选题选项 -->
+    <view class="options-list" wx:if="{{currentQuestion.type === 'single'}}">
+      <view 
+        class="option-item {{answers[currentIndex] === 'A' ? 'selected' : ''}}" 
+        bindtap="onSelectAnswer" 
+        data-option="A"
+      >
+        <text class="option-letter">A</text>
+        <text class="option-text">{{currentQuestion.optionA}}</text>
+      </view>
+      <view 
+        class="option-item {{answers[currentIndex] === 'B' ? 'selected' : ''}}" 
+        bindtap="onSelectAnswer" 
+        data-option="B"
+      >
+        <text class="option-letter">B</text>
+        <text class="option-text">{{currentQuestion.optionB}}</text>
+      </view>
+      <view 
+        class="option-item {{answers[currentIndex] === 'C' ? 'selected' : ''}}" 
+        bindtap="onSelectAnswer" 
+        data-option="C"
+      >
+        <text class="option-letter">C</text>
+        <text class="option-text">{{currentQuestion.optionC}}</text>
+      </view>
+      <view 
+        class="option-item {{answers[currentIndex] === 'D' ? 'selected' : ''}}" 
+        bindtap="onSelectAnswer" 
+        data-option="D"
+      >
+        <text class="option-letter">D</text>
+        <text class="option-text">{{currentQuestion.optionD}}</text>
+      </view>
+    </view>
+
+    <!-- 多选题选项 -->
+    <view class="options-list multiple" wx:if="{{currentQuestion.type === 'multiple'}}">
+      <view class="multiple-hint">可选择多个答案</view>
+      <view 
+        class="option-item {{answers[currentIndex] && answers[currentIndex].indexOf('A') > -1 ? 'selected' : ''}}" 
+        bindtap="onMultipleSelect" 
+        data-option="A"
+      >
+        <text class="option-letter">A</text>
+        <text class="option-text">{{currentQuestion.optionA}}</text>
+      </view>
+      <view 
+        class="option-item {{answers[currentIndex] && answers[currentIndex].indexOf('B') > -1 ? 'selected' : ''}}" 
+        bindtap="onMultipleSelect" 
+        data-option="B"
+      >
+        <text class="option-letter">B</text>
+        <text class="option-text">{{currentQuestion.optionB}}</text>
+      </view>
+      <view 
+        class="option-item {{answers[currentIndex] && answers[currentIndex].indexOf('C') > -1 ? 'selected' : ''}}" 
+        bindtap="onMultipleSelect" 
+        data-option="C"
+      >
+        <text class="option-letter">C</text>
+        <text class="option-text">{{currentQuestion.optionC}}</text>
+      </view>
+      <view 
+        class="option-item {{answers[currentIndex] && answers[currentIndex].indexOf('D') > -1 ? 'selected' : ''}}" 
+        bindtap="onMultipleSelect" 
+        data-option="D"
+      >
+        <text class="option-letter">D</text>
+        <text class="option-text">{{currentQuestion.optionD}}</text>
+      </view>
+    </view>
+
+    <!-- 判断题选项 -->
+    <view class="options-list judge" wx:if="{{currentQuestion.type === 'judge'}}">
+      <view 
+        class="option-item {{answers[currentIndex] === 'A' ? 'selected' : ''}}" 
+        bindtap="onSelectAnswer" 
+        data-option="A"
+      >
+        <text class="option-letter">✓</text>
+        <text class="option-text">正确</text>
+      </view>
+      <view 
+        class="option-item {{answers[currentIndex] === 'B' ? 'selected' : ''}}" 
+        bindtap="onSelectAnswer" 
+        data-option="B"
+      >
+        <text class="option-letter">✗</text>
+        <text class="option-text">错误</text>
+      </view>
+    </view>
+
+    <!-- 填空题/问答题输入框 -->
+    <view class="text-answer" wx:if="{{currentQuestion.type === 'fill' || currentQuestion.type === 'essay'}}">
+      <textarea 
+        class="answer-input" 
+        placeholder="请输入您的答案"
+        value="{{answers[currentIndex] || ''}}"
+        bindinput="onTextAnswerInput"
+        maxlength="500"
+      />
+    </view>
+  </view>
+
+  <!-- 底部操作栏 -->
+  <view class="bottom-bar">
+    <view class="nav-buttons">
+      <button class="nav-btn prev" bindtap="onPrevQuestion">
+        ← 上一题
+      </button>
+      <text class="progress-text">{{currentQuestion ? currentQuestion.globalIndex : 1}} / {{questions.length}}</text>
+      <button class="nav-btn next" bindtap="onNextQuestion">
+        下一题 →
+      </button>
+    </view>
+    
+    <!-- 题目导航 - 显示题号和答题状态 -->
+    <view class="question-nav">
+      <view 
+        wx:for="{{questions}}" 
+        wx:key="index"
+        class="nav-item {{index === currentIndex ? 'current' : ''}} {{answers[index] ? 'answered' : ''}}"
+        bindtap="onChangeQuestion"
+        data-index="{{index}}"
+      >
+        {{item.globalIndex}}
+      </view>
+    </view>
+
+    <button class="submit-btn" bindtap="onSubmitExam">
+      交卷
+    </button>
+  </view>
+</view>

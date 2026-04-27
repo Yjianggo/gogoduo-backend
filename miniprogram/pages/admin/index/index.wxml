@@ -1,0 +1,58 @@
+<!--miniprogram/pages/admin/index/index.wxml-->
+<view class="container">
+  <!-- 标题 -->
+  <view class="header">
+    <text class="title">管理后台</text>
+    <text class="subtitle">请先登录管理员账号</text>
+  </view>
+
+  <!-- 登录表单 -->
+  <view class="login-form">
+    
+    <!-- 用户名 -->
+    <view class="input-group">
+      <text class="input-label">管理员账号</text>
+      <input 
+        class="input-field" 
+        type="text" 
+        placeholder="请输入管理员账号"
+        placeholder-class="placeholder"
+        value="{{username}}"
+        bindinput="onUsernameInput"
+      />
+    </view>
+
+    <!-- 密码 -->
+    <view class="input-group">
+      <text class="input-label">密码</text>
+      <view class="password-wrapper">
+        <input 
+          class="input-field password-input" 
+          type="{{showPassword ? 'text' : 'password'}}" 
+          placeholder="请输入密码"
+          placeholder-class="placeholder"
+          value="{{password}}"
+          bindinput="onPasswordInput"
+        />
+        <view class="eye-btn" bindtap="togglePassword">
+          <text class="{{showPassword ? 'eye-open' : 'eye-close'}}">{{showPassword ? '👁' : '👁‍🗨'}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 错误提示 -->
+    <view class="error-tip" wx:if="{{errorMsg}}">
+      <text>{{errorMsg}}</text>
+    </view>
+
+    <!-- 登录按钮 -->
+    <button class="login-btn" bindtap="onLogin">
+      <text>登录</text>
+    </button>
+
+    <!-- 返回考生入口 -->
+    <button class="back-btn" bindtap="goBack">
+      <text>返回考生入口</text>
+    </button>
+  </view>
+</view>

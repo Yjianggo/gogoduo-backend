@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>GO狗GO 在线考试</title>
+<style>
+/* ========== 全局样式 ========== */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', sans-serif; background: #f0f2f5; color: #333; min-height: 100vh; }
+.hidden { display: none !important; }
+.page { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 16px; }
+.card { background: #fff; border-radius: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); padding: 32px 28px; width: 100%; max-width: 480px; }
+.btn { display: inline-flex; align-items: center; justify-content: center; border: none; border-radius: 10px; cursor: pointer; font-size: 15px; font-weight: 600; padding: 12px 20px; transition: all 0.2s; }
+.btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; width: 100%; padding: 14px; font-size: 16px; }
+.btn-primary:hover { opacity: 0.92; transform: translateY(-1px); }
+.btn-primary:disabled { background: #ccc; transform: none; cursor: not-allowed; }
+.btn-danger { background: #ff4d4f; color: #fff; }
+.btn-danger:hover { background: #d9363e; }
+.btn-ghost { background: transparent; border: 1.5px solid #667eea; color: #667eea; }
+.btn-ghost:hover { background: #f0eeff; }
+.btn-sm { padding: 7px 14px; font-size: 13px; border-radius: 8px; }
+input, textarea, select { width: 100%; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 12px 14px; font-size: 14px; outline: none; transition: border-color 0.2s; background: #fafafa; }
+input:focus, textarea:focus, select:focus { border-color: #667eea; background: #fff; }
+.form-group { margin-bottom: 16px; }
+.form-group label { display: block; font-size: 13px; color: #666; margin-bottom: 6px; font-weight: 500; }
+.toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: #fff; padding: 10px 24px; border-radius: 24px; font-size: 14px; z-index: 9999; animation: fadeInOut 2.5s ease forwards; white-space: nowrap; }
+@keyframes fadeInOut { 0%{opacity:0;transform:translate(-50%,-8px)} 15%{opacity:1;transform:translate(-50%,0)} 75%{opacity:1} 100%{opacity:0} }
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 16px; }
+.modal-box { background: #fff; border-radius: 16px; padding: 28px 24px; width: 100%; max-width: 420px; }
+.modal-box h3 { font-size: 17px; margin-bottom: 14px; }
+.modal-actions { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
+.badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+.badge-pass { background: #d1fae5; color: #059669; }
+.badge-fail { background: #fee2e2; color: #dc2626; }
+
+/* ===== 配置页 ===== */
+#page-setup { background: linear-gradient(135deg, #1a1a2e, #16213e); }
+#page-setup .card { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); }
+#page-setup h2 { color: #fff; text-align: center; margin-bottom: 8px; font-size: 20px; }
+#page-setup .setup-sub { text-align: center; color: rgba(255,255,255,0.5); font-size: 13px; margin-bottom: 24px; }
+#page-setup input { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); color: #fff; }
+#page-setup input::placeholder { color: rgba(255,255,255,0.35); }
+#page-setup input:focus { border-color: #667eea; }
+#page-setup label { color: rgba(255,255,255,0.7); }
+.setup-tip { background: rgba(102,126,234,0.15); border: 1px solid rgba(102,126,234,0.3); border-radius: 10px; padding: 12px 14px; font-size: 12px; color: rgba(255,255,255,0.6); margin-bottom: 20px; line-height: 1.7; }
+.setup-tip a { color: #a0b4f8; text-decoration: none; }
+.setup-tip a:hover { text-decoration: underline; }
+.setup-status { text-align: center; padding: 12px; font-size: 13px; border-radius: 10px; margin-bottom: 16px; }
+.setup-status.ok { background: rgba(16,185,129,0.15); color: #34d399; }
+.setup-status.err { background: rgba(239,68,68,0.15); color: #f87171; }
+
+/* ========== 登录页 ========== */
+#page-login .logo { text-align: center; margin-bottom: 28px; }
+#page-login .logo-icon { font-size: 56px; }
+#page-login .logo-title { font-size: 22px; font-weight: 700; color: #333; margin-top: 8px; }
+#page-login .logo-sub { font-size: 13px; color: #999; margin-top: 4px; }
+.notice-bar { background: #f0eeff; border-radius: 10px; padding: 12px 14px; font-size: 13px; color: #555; margin-bottom: 20px; cursor: pointer; }
+.notice-bar span { color: #667eea; font-weight: 600; }
+.admin-entry { text-align: center; margin-top: 20px; }
+.admin-entry a { font-size: 13px; color: #aaa; cursor: pointer; text-decoration: underline; }
+
+/* ========== 考试页 ========== */
+#page-exam { padding: 0; align-items: stretch; justify-content: flex-start; background: #f0f2f5; }
+.exam-header { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; padding: 14px 16px; position: sticky; top: 0; z-index: 100; }
+.exam-header-row { display: flex; align-items: center; justify-content: space-between; }
+.exam-title-text { font-size: 15px; font-weight: 700; flex: 1; text-align: center; }
+.timer { font-size: 15px; font-weight: 700; background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; }
+.timer.urgent { background: rgba(255,77,79,0.8); animation: pulse 1s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.7} }
+.exam-progress { display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 12px; opacity: 0.85; }
+.progress-bar { flex: 1; height: 4px; background: rgba(255,255,255,0.3); border-radius: 2px; overflow: hidden; }
+.progress-fill { height: 100%; background: #fff; border-radius: 2px; transition: width 0.3s; }
+.type-tabs { display: flex; gap: 8px; padding: 12px 16px 0; overflow-x: auto; }
+.type-tabs::-webkit-scrollbar { display: none; }
+.type-tab { flex-shrink: 0; padding: 6px 14px; border-radius: 20px; font-size: 13px; border: 1.5px solid #e2e8f0; background: #fff; cursor: pointer; transition: all 0.2s; font-weight: 500; }
+.type-tab.active { background: #667eea; color: #fff; border-color: #667eea; }
+.question-area { padding: 12px 16px; }
+.question-card { background: #fff; border-radius: 14px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+.question-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.q-type-badge { font-size: 11px; padding: 2px 10px; border-radius: 10px; font-weight: 600; color: #fff; }
+.q-no { font-size: 13px; color: #999; }
+.question-content { font-size: 16px; font-weight: 600; line-height: 1.6; margin-bottom: 16px; }
+.options-list { display: flex; flex-direction: column; gap: 10px; }
+.option-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; border: 1.5px solid #e2e8f0; border-radius: 10px; cursor: pointer; transition: all 0.2s; }
+.option-item:hover { border-color: #667eea; background: #f9f8ff; }
+.option-item.selected { border-color: #667eea; background: #f0eeff; }
+.option-circle { width: 26px; height: 26px; border-radius: 50%; border: 2px solid #ccc; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; color: #999; transition: all 0.2s; }
+.option-item.selected .option-circle { background: #667eea; border-color: #667eea; color: #fff; }
+.option-text { font-size: 14px; line-height: 1.5; padding-top: 3px; }
+.judge-options { display: flex; gap: 12px; }
+.judge-option { flex: 1; padding: 14px; border: 1.5px solid #e2e8f0; border-radius: 10px; text-align: center; cursor: pointer; font-size: 15px; font-weight: 600; transition: all 0.2s; }
+.judge-option:hover { border-color: #667eea; }
+.judge-option.selected { background: #f0eeff; border-color: #667eea; color: #667eea; }
+.text-answer-area { width: 100%; min-height: 80px; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 12px; font-size: 14px; resize: vertical; background: #fafafa; }
+.text-answer-area:focus { border-color: #667eea; background: #fff; outline: none; }
+.question-nav { padding: 12px 16px; }
+.nav-title { font-size: 13px; color: #999; margin-bottom: 10px; font-weight: 500; }
+.nav-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 8px; max-height: 160px; overflow-y: auto; }
+.nav-btn { aspect-ratio: 1; border-radius: 8px; border: 1.5px solid #e2e8f0; font-size: 12px; font-weight: 600; cursor: pointer; background: #fff; color: #666; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+.nav-btn.answered { background: #667eea; color: #fff; border-color: #667eea; }
+.nav-btn.current { border-color: #f59e0b; color: #f59e0b; box-shadow: 0 0 0 2px rgba(245,158,11,0.2); }
+.nav-btn.current.answered { background: #f59e0b; border-color: #f59e0b; color: #fff; }
+.exam-footer { padding: 14px 16px; background: #fff; border-top: 1px solid #f0f0f0; display: flex; gap: 10px; align-items: center; }
+.btn-prev-next { flex: 1; padding: 12px; font-size: 14px; background: #f5f5f5; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; color: #555; }
+.btn-prev-next:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-submit-exam { padding: 12px 24px; background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; }
+
+/* ========== 成绩页 ========== */
+#page-result { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+.result-card { text-align: center; }
+.result-icon { font-size: 64px; margin-bottom: 12px; }
+.result-score-big { font-size: 72px; font-weight: 900; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1; }
+.result-score-label { font-size: 14px; color: #999; margin-top: 4px; }
+.result-grade { font-size: 22px; font-weight: 700; margin: 12px 0 4px; }
+.result-grade.pass { color: #059669; }
+.result-grade.fail { color: #dc2626; }
+.result-desc { font-size: 13px; color: #888; margin-bottom: 24px; }
+.result-stats { display: flex; gap: 12px; margin: 20px 0; }
+.stat-item { flex: 1; background: #f9f8ff; border-radius: 12px; padding: 14px 10px; text-align: center; }
+.stat-value { font-size: 24px; font-weight: 800; color: #667eea; }
+.stat-label { font-size: 12px; color: #999; margin-top: 4px; }
+.result-actions { display: flex; flex-direction: column; gap: 10px; }
+
+/* ========== 管理员登录 ========== */
+#page-admin-login { background: linear-gradient(135deg, #1a1a2e, #16213e); }
+#page-admin-login .card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
+#page-admin-login h2 { color: #fff; text-align: center; margin-bottom: 24px; font-size: 20px; }
+#page-admin-login input { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); color: #fff; }
+#page-admin-login input::placeholder { color: rgba(255,255,255,0.4); }
+#page-admin-login input:focus { border-color: #667eea; }
+#page-admin-login label { color: rgba(255,255,255,0.7); }
+.back-link { text-align: center; margin-top: 16px; }
+.back-link a { color: rgba(255,255,255,0.5); font-size: 13px; cursor: pointer; text-decoration: underline; }
+
+/* ========== 管理后台 ========== */
+#page-admin { padding: 0; justify-content: flex-start; align-items: stretch; }
+.admin-header { background: linear-gradient(135deg, #1a1a2e, #16213e); color: #fff; padding: 16px; display: flex; align-items: center; justify-content: space-between; }
+.admin-header h1 { font-size: 18px; font-weight: 700; }
+.admin-nav { display: flex; gap: 0; border-bottom: 2px solid #f0f0f0; background: #fff; padding: 0 16px; overflow-x: auto; }
+.admin-nav::-webkit-scrollbar { display: none; }
+.admin-tab { padding: 14px 18px; font-size: 14px; font-weight: 600; color: #999; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; white-space: nowrap; transition: all 0.2s; }
+.admin-tab.active { color: #667eea; border-bottom-color: #667eea; }
+.admin-content { padding: 16px; overflow-y: auto; flex: 1; }
+.settings-section { background: #fff; border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+.settings-section h3 { font-size: 15px; font-weight: 700; margin-bottom: 16px; color: #333; padding-bottom: 10px; border-bottom: 1px solid #f0f0f0; }
+.q-list-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
+.q-list-header h3 { font-size: 16px; font-weight: 700; }
+.q-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.q-item { background: #fff; border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; border: 1.5px solid #f0f0f0; transition: border-color 0.2s; }
+.q-item:hover { border-color: #e0d9ff; }
+.q-item-header { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
+.q-no-badge { font-size: 12px; color: #999; font-weight: 600; flex-shrink: 0; padding-top: 2px; min-width: 28px; }
+.q-content-text { font-size: 14px; font-weight: 600; flex: 1; line-height: 1.5; }
+.q-item-footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+.q-answer-hint { font-size: 12px; color: #10b981; font-weight: 500; }
+.q-item-btns { display: flex; gap: 6px; }
+.score-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+.score-stat-card { background: #fff; border-radius: 12px; padding: 16px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+.score-stat-value { font-size: 28px; font-weight: 800; color: #667eea; }
+.score-stat-label { font-size: 12px; color: #999; margin-top: 4px; }
+.score-table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+.score-table th { background: #f9f8ff; padding: 12px 10px; text-align: left; font-size: 13px; color: #666; font-weight: 600; border-bottom: 1px solid #f0f0f0; }
+.score-table td { padding: 12px 10px; font-size: 13px; border-bottom: 1px solid #f8f8f8; }
+.score-table tr:last-child td { border-bottom: none; }
+.score-table tr:hover td { background: #faf9ff; }
+.score-table-wrap { overflow-x: auto; }
+.import-textarea { min-height: 200px; font-size: 13px; font-family: monospace; }
+.import-hint { font-size: 12px; color: #999; margin-top: 8px; line-height: 1.6; }
+.import-hint code { background: #f5f5f5; padding: 1px 5px; border-radius: 4px; font-family: monospace; }
+.option-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.answer-selector { display: flex; gap: 8px; flex-wrap: wrap; }
+.ans-btn { padding: 7px 16px; border: 1.5px solid #e2e8f0; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 700; background: #fff; transition: all 0.2s; }
+.ans-btn.active { background: #667eea; color: #fff; border-color: #667eea; }
+/* 加载遮罩 */
+.loading-mask { position: fixed; inset: 0; background: rgba(255,255,255,0.85); z-index: 8000; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; }
+.loading-mask .spinner { width: 40px; height: 40px; border: 4px solid #e2e8f0; border-top-color: #667eea; border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-mask p { font-size: 14px; color: #666; }
+@media (max-width: 480px) {
+  .card { padding: 24px 18px; }
+  .nav-grid { grid-template-columns: repeat(7, 1fr); }
+  .score-stats { grid-template-columns: repeat(3, 1fr); }
+  .option-inputs { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== Supabase 配置页 ===== -->
+<div id="page-setup" class="page">
+  <div class="card">
+    <h2>🐾 GO狗GO</h2>
+    <div class="setup-sub">首次使用，请填写 Supabase 连接信息</div>
+    <div class="setup-tip">
+      还没有 Supabase？<br>
+      1. 前往 <a href="https://supabase.com" target="_blank">supabase.com</a> 免费注册<br>
+      2. 创建新项目（免费套餐够用）<br>
+      3. 进入 Project Settings → API，复制 URL 和 anon key<br>
+      4. 在 SQL Editor 中运行下方初始化 SQL
+    </div>
+    <div id="setup-status" class="setup-status" style="display:none;"></div>
+    <div class="form-group">
+      <label>Supabase URL</label>
+      <input type="text" id="sb-url" placeholder="https://xxxxxxxx.supabase.co" value="https://lpxkbpxcbvytaxchrai.supabase.co">
+    </div>
+    <div class="form-group">
+      <label>Supabase Anon Key</label>
+      <input type="text" id="sb-key" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlweGticHhjYnZ5dGF4Y3RocmFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxNTg4ODAsImV4cCI6MjA5MjczNDg4MH0.ymzsBwtubq5dgg0Z-rkQ27aZDNwwnjWmUrLa8v9KX9s">
+    </div>
+    <button class="btn btn-primary" onclick="testAndSaveConfig()">✅ 连接并开始使用</button>
+    <div style="margin-top:16px;text-align:center;">
+      <a style="font-size:12px;color:#aaa;cursor:pointer;" onclick="showInitSQL()">📋 查看初始化 SQL（需在 Supabase 运行一次）</a>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 登录页 ===== -->
+<div id="page-login" class="page hidden">
+  <div class="card">
+    <div class="logo">
+      <div class="logo-icon">🐾</div>
+      <div class="logo-title" id="login-exam-title">在线考试系统</div>
+      <div class="logo-sub">请填写信息后开始考试</div>
+    </div>
+    <div class="notice-bar" onclick="showNotice()">
+      📋 <span>考试须知</span>：点击查看考试规则和注意事项
+    </div>
+    <div class="form-group">
+      <label>姓名</label>
+      <input type="text" id="input-name" placeholder="请输入您的姓名" oninput="updateLoginBtn()">
+    </div>
+    <div class="form-group">
+      <label>手机号</label>
+      <input type="tel" id="input-phone" placeholder="请输入11位手机号" maxlength="11" oninput="updateLoginBtn()">
+    </div>
+    <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:#666;margin-bottom:20px;cursor:pointer;">
+      <input type="checkbox" id="check-notice" onchange="updateLoginBtn()" style="width:auto;accent-color:#667eea;">
+      <span>我已阅读并同意考试须知</span>
+    </label>
+    <button class="btn btn-primary" id="btn-login" disabled onclick="doLogin()">开始考试</button>
+    <div class="admin-entry"><a onclick="goTo('admin-login')">管理员入口</a></div>
+  </div>
+</div>
+
+<!-- ===== 考试页 ===== -->
+<div id="page-exam" class="page hidden">
+  <div class="exam-header">
+    <div class="exam-header-row">
+      <div style="width:60px;font-size:13px;opacity:0.7;" id="exam-user-name"></div>
+      <div class="exam-title-text" id="exam-title-text">在线考试</div>
+      <div class="timer" id="exam-timer">30:00</div>
+    </div>
+    <div class="exam-progress">
+      <span id="exam-progress-text">0/0</span>
+      <div class="progress-bar"><div class="progress-fill" id="exam-progress-fill" style="width:0%"></div></div>
+      <span id="exam-answered-count">已答0题</span>
+    </div>
+  </div>
+  <div class="type-tabs" id="type-tabs"></div>
+  <div class="question-area" id="question-area"></div>
+  <div class="question-nav">
+    <div class="nav-title">题目导航（点击跳转）</div>
+    <div class="nav-grid" id="nav-grid"></div>
+  </div>
+  <div class="exam-footer">
+    <button class="btn-prev-next" id="btn-prev" onclick="prevQuestion()">上一题</button>
+    <button class="btn-submit-exam" onclick="confirmSubmit()">交卷</button>
+    <button class="btn-prev-next" id="btn-next" onclick="nextQuestion()">下一题</button>
+  </div>
+</div>
+
+<!-- ===== 成绩页 ===== -->
+<div id="page-result" class="page hidden">
+  <div class="card result-card">
+    <div class="result-icon" id="result-icon">🏆</div>
+    <div class="result-score-big" id="result-score">0</div>
+    <div class="result-score-label">分</div>
+    <div class="result-grade" id="result-grade"></div>
+    <div class="result-desc" id="result-desc"></div>
+    <div class="result-stats">
+      <div class="stat-item"><div class="stat-value" id="rs-correct">0</div><div class="stat-label">答对</div></div>
+      <div class="stat-item"><div class="stat-value" id="rs-wrong">0</div><div class="stat-label">答错</div></div>
+      <div class="stat-item"><div class="stat-value" id="rs-accuracy">0%</div><div class="stat-label">正确率</div></div>
+    </div>
+    <div style="font-size:13px;color:#999;margin-bottom:20px;" id="rs-info"></div>
+    <div class="result-actions">
+      <button class="btn btn-primary" onclick="goTo('login');initLogin()">再次考试</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 管理员登录页 ===== -->
+<div id="page-admin-login" class="page hidden">
+  <div class="card">
+    <h2>🔐 管理员登录</h2>
+    <div class="form-group">
+      <label>管理员密码</label>
+      <input type="password" id="admin-pwd-input" placeholder="请输入管理员密码" onkeydown="if(event.key==='Enter')doAdminLogin()">
+    </div>
+    <button class="btn btn-primary" onclick="doAdminLogin()">登录</button>
+    <div class="back-link"><a onclick="goTo('login')">← 返回考试入口</a></div>
+  </div>
+</div>
+
+<!-- ===== 管理后台 ===== -->
+<div id="page-admin" class="page hidden">
+  <div class="admin-header">
+    <h1>🐾 GO狗GO 管理后台</h1>
+    <button class="btn btn-ghost btn-sm" style="color:#fff;border-color:rgba(255,255,255,0.4);" onclick="adminLogout()">退出</button>
+  </div>
+  <div class="admin-nav">
+    <div class="admin-tab active" onclick="switchAdminTab('settings')">⚙️ 考试设置</div>
+    <div class="admin-tab" onclick="switchAdminTab('questions')">📝 题目管理</div>
+    <div class="admin-tab" onclick="switchAdminTab('scores')">📊 成绩查看</div>
+  </div>
+  <div class="admin-content" id="admin-content"></div>
+</div>
+
+<!-- ===== 确认弹窗 ===== -->
+<div id="modal-confirm" class="modal-overlay hidden">
+  <div class="modal-box">
+    <h3 id="modal-title">确认</h3>
+    <p id="modal-body" style="font-size:14px;color:#555;line-height:1.6;white-space:pre-line;"></p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost btn-sm" id="modal-cancel-btn" onclick="modalCancel()">取消</button>
+      <button class="btn btn-primary btn-sm" id="modal-confirm-btn" onclick="modalConfirm()" style="width:auto;">确定</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 加载遮罩 ===== -->
+<div id="loading-mask" class="loading-mask hidden">
+  <div class="spinner"></div>
+  <p id="loading-text">加载中...</p>
+</div>
+
+<script>
+// ============================================================
+//  Supabase 轻量客户端（无需 npm，直接 REST API）
+// ============================================================
+const SB = {
+  url: '',
+  key: '',
+  init(url, key) { this.url = url.replace(/\/$/, ''); this.key = key; },
+  headers() {
+    return { 'apikey': this.key, 'Authorization': 'Bearer ' + this.key, 'Content-Type': 'application/json', 'Prefer': 'return=representation' };
+  },
+  async select(table, params = '') {
+    const r = await fetch(`${this.url}/rest/v1/${table}?${params}`, { headers: this.headers() });
+    if (!r.ok) throw new Error(await r.text());
+    return r.json();
+  },
+  async upsert(table, data) {
+    const h = { ...this.headers(), 'Prefer': 'resolution=merge-duplicates,return=representation' };
+    const r = await fetch(`${this.url}/rest/v1/${table}`, { method: 'POST', headers: h, body: JSON.stringify(data) });
+    if (!r.ok) throw new Error(await r.text());
+    return r.json();
+  },
+  async insert(table, data) {
+    const r = await fetch(`${this.url}/rest/v1/${table}`, { method: 'POST', headers: this.headers(), body: JSON.stringify(data) });
+    if (!r.ok) throw new Error(await r.text());
+    return r.json();
+  },
+  async update(table, data, match) {
+    const q = Object.entries(match).map(([k,v]) => `${k}=eq.${v}`).join('&');
+    const r = await fetch(`${this.url}/rest/v1/${table}?${q}`, { method: 'PATCH', headers: this.headers(), body: JSON.stringify(data) });
+    if (!r.ok) throw new Error(await r.text());
+    return r.json();
+  },
+  async del(table, match) {
+    const q = Object.entries(match).map(([k,v]) => `${k}=eq.${v}`).join('&');
+    const r = await fetch(`${this.url}/rest/v1/${table}?${q}`, { method: 'DELETE', headers: this.headers() });
+    if (!r.ok) throw new Error(await r.text());
+    return true;
+  }
+};
+
+// ============================================================
+//  本地缓存（快速读取，减少请求）
+// ============================================================
+const LC = {
+  get: (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } },
+  set: (k, v) => localStorage.setItem(k, JSON.stringify(v)),
+  del: (k) => localStorage.removeItem(k)
+};
+
+// ============================================================
+//  初始化 SQL（复制给用户在 Supabase 执行）
+// ============================================================
+const INIT_SQL = `-- GO狗GO 初始化 SQL（在 Supabase SQL Editor 中运行一次）
+-- 考试设置表
+CREATE TABLE IF NOT EXISTS exam_settings (
+  id TEXT PRIMARY KEY DEFAULT 'main',
+  exam_title TEXT DEFAULT 'GO狗GO 在线考试',
+  exam_duration INT DEFAULT 30,
+  pass_score INT DEFAULT 60,
+  question_order TEXT DEFAULT 'sequence',
+  admin_password TEXT DEFAULT 'admin123',
+  notice TEXT DEFAULT '',
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- 题目表
+CREATE TABLE IF NOT EXISTS exam_questions (
+  id BIGSERIAL PRIMARY KEY,
+  sort_order INT DEFAULT 0,
+  type TEXT NOT NULL DEFAULT 'single',
+  content TEXT NOT NULL,
+  option_a TEXT DEFAULT '',
+  option_b TEXT DEFAULT '',
+  option_c TEXT DEFAULT '',
+  option_d TEXT DEFAULT '',
+  correct_answer TEXT DEFAULT '',
+  correct_text TEXT DEFAULT '',
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- 成绩表
+CREATE TABLE IF NOT EXISTS exam_records (
+  id BIGSERIAL PRIMARY KEY,
+  user_name TEXT NOT NULL,
+  user_phone TEXT NOT NULL,
+  score INT NOT NULL,
+  correct_count INT NOT NULL,
+  total_count INT NOT NULL,
+  pass_score INT NOT NULL,
+  grade TEXT NOT NULL,
+  submit_time TIMESTAMPTZ DEFAULT now()
+);
+
+-- 关闭 RLS（内网使用，简单模式）
+ALTER TABLE exam_settings DISABLE ROW LEVEL SECURITY;
+ALTER TABLE exam_questions DISABLE ROW LEVEL SECURITY;
+ALTER TABLE exam_records DISABLE ROW LEVEL SECURITY;
+
+-- 插入默认设置
+INSERT INTO exam_settings (id) VALUES ('main') ON CONFLICT (id) DO NOTHING;
+`;
+
+const DEFAULT_SETTINGS = {
+  examTitle: 'GO狗GO 在线考试',
+  examDuration: 30,
+  passScore: 60,
+  questionOrder: 'sequence',
+  adminPassword: 'admin123',
+  notice: ''
+};
+
+const TYPE_CONFIG = {
+  single:   { name:'单选题', color:'#667eea', icon:'📋' },
+  multiple: { name:'多选题', color:'#f59e0b', icon:'📑' },
+  judge:    { name:'判断题', color:'#10b981', icon:'✓' },
+  fill:     { name:'填空题', color:'#ef4444', icon:'✏️' },
+  essay:    { name:'问答题', color:'#8b5cf6', icon:'📝' }
+};
+
+let examState = { questions:[], currentIndex:0, answers:{}, timeLeft:0, timer:null, currentType:'all', userInfo:null, settings:null };
+let adminState = { tab:'settings', editingIndex:-1 };
+let modalCallback = null;
+
+// ============================================================
+//  加载遮罩
+// ============================================================
+function showLoading(msg = '加载中...') {
+  document.getElementById('loading-text').textContent = msg;
+  document.getElementById('loading-mask').classList.remove('hidden');
+}
+function hideLoading() {
+  document.getElementById('loading-mask').classList.add('hidden');
+}
+
+// ============================================================
+//  页面切换 & Toast & Modal
+// ============================================================
+function goTo(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+  document.getElementById('page-' + page).classList.remove('hidden');
+  window.scrollTo(0, 0);
+}
+
+function toast(msg) {
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 2600);
+}
+
+function showModal(title, body, onConfirm, confirmText = '确定', danger = false, hideCancelBtn = false) {
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-body').textContent = body;
+  const btn = document.getElementById('modal-confirm-btn');
+  btn.textContent = confirmText;
+  btn.className = 'btn btn-sm ' + (danger ? 'btn-danger' : 'btn-primary');
+  btn.style.width = 'auto';
+  const cancelBtn = document.getElementById('modal-cancel-btn');
+  cancelBtn.style.display = hideCancelBtn ? 'none' : '';
+  modalCallback = onConfirm;
+  document.getElementById('modal-confirm').classList.remove('hidden');
+}
+function modalConfirm() {
+  document.getElementById('modal-confirm').classList.add('hidden');
+  document.getElementById('modal-cancel-btn').style.display = '';
+  document.getElementById('modal-confirm-btn').onclick = modalConfirm;
+  if (modalCallback) modalCallback();
+  modalCallback = null;
+}
+function modalCancel() {
+  document.getElementById('modal-confirm').classList.add('hidden');
+  document.getElementById('modal-cancel-btn').style.display = '';
+  modalCallback = null;
+}
+
+// ============================================================
+//  Supabase 配置页
+// ============================================================
+function showInitSQL() {
+  showModal('初始化 SQL', '请复制下方 SQL，在 Supabase 的 SQL Editor 中运行一次：\n\n（已复制到剪贴板）', null, '关闭', false, true);
+  navigator.clipboard?.writeText(INIT_SQL).catch(() => {});
+  // 让弹窗体显示SQL
+  document.getElementById('modal-body').textContent = INIT_SQL;
+  document.getElementById('modal-body').style.cssText = 'font-size:11px;color:#333;background:#f5f5f5;padding:10px;border-radius:8px;white-space:pre;overflow:auto;max-height:300px;font-family:monospace;';
+}
+
+async function testAndSaveConfig() {
+  const url = document.getElementById('sb-url').value.trim();
+  const key = document.getElementById('sb-key').value.trim();
+  if (!url || !key) { toast('请填写 URL 和 Key'); return; }
+
+  showLoading('正在连接 Supabase...');
+  try {
+    SB.init(url, key);
+    // 测试：查询 exam_settings
+    await SB.select('exam_settings', 'id=eq.main&select=id');
+    LC.set('sb_url', url);
+    LC.set('sb_key', key);
+    hideLoading();
+    const el = document.getElementById('setup-status');
+    el.style.display = '';
+    el.className = 'setup-status ok';
+    el.textContent = '✅ 连接成功！正在进入...';
+    setTimeout(() => { goTo('login'); initLogin(); }, 800);
+  } catch (e) {
+    hideLoading();
+    const el = document.getElementById('setup-status');
+    el.style.display = '';
+    el.className = 'setup-status err';
+    el.textContent = '❌ 连接失败：' + (e.message || String(e)) + '（请确认 URL/Key 正确，且已运行初始化 SQL）';
+  }
+}
+
+// ============================================================
+//  登录页
+// ============================================================
+async function initLogin() {
+  document.getElementById('input-name').value = '';
+  document.getElementById('input-phone').value = '';
+  document.getElementById('check-notice').checked = false;
+  document.getElementById('btn-login').disabled = true;
+  try {
+    const rows = await SB.select('exam_settings', 'id=eq.main');
+    if (rows && rows[0]) {
+      const s = rows[0];
+      LC.set('cachedSettings', s);
+      document.getElementById('login-exam-title').textContent = s.exam_title || 'GO狗GO 在线考试';
+    }
+  } catch {
+    const s = LC.get('cachedSettings', null);
+    if (s) document.getElementById('login-exam-title').textContent = s.exam_title || 'GO狗GO 在线考试';
+  }
+}
+
+function updateLoginBtn() {
+  const name = document.getElementById('input-name').value.trim();
+  const phone = document.getElementById('input-phone').value.trim();
+  const agreed = document.getElementById('check-notice').checked;
+  document.getElementById('btn-login').disabled = !(name && /^1[3-9]\d{9}$/.test(phone) && agreed);
+}
+
+function showNotice() {
+  const s = LC.get('cachedSettings', {});
+  const dur = s.exam_duration || 30;
+  const pass = s.pass_score || 60;
+  const notice = s.notice || '';
+  const defaultText = `1. 请认真阅读每道题目后再作答\n2. 考试时长为${dur}分钟\n3. 及格分数为${pass}分\n4. 答题过程中可切换题目\n5. 交卷后无法修改答案\n6. 时间结束将自动交卷`;
+  showModal('考试须知', notice || defaultText, null, '我知道了', false, true);
+}
+
+async function doLogin() {
+  const name = document.getElementById('input-name').value.trim();
+  const phone = document.getElementById('input-phone').value.trim();
+  if (!name) { toast('请输入姓名'); return; }
+  if (!/^1[3-9]\d{9}$/.test(phone)) { toast('请输入正确的手机号'); return; }
+  LC.set('currentUser', { name, phone });
+  await startExam();
+}
+
+// ============================================================
+//  考试逻辑
+// ============================================================
+async function startExam() {
+  showLoading('加载题目中...');
+  try {
+    let [settingsRows, questionsRows] = await Promise.all([
+      SB.select('exam_settings', 'id=eq.main'),
+      SB.select('exam_questions', 'order=sort_order.asc,id.asc')
+    ]);
+    hideLoading();
+
+    const rawSettings = (settingsRows && settingsRows[0]) || {};
+    const settings = {
+      examTitle: rawSettings.exam_title || DEFAULT_SETTINGS.examTitle,
+      examDuration: rawSettings.exam_duration || DEFAULT_SETTINGS.examDuration,
+      passScore: rawSettings.pass_score || DEFAULT_SETTINGS.passScore,
+      questionOrder: rawSettings.question_order || DEFAULT_SETTINGS.questionOrder,
+      adminPassword: rawSettings.admin_password || DEFAULT_SETTINGS.adminPassword,
+    };
+
+    let questions = (questionsRows || []).map(q => ({
+      id: q.id,
+      type: q.type,
+      content: q.content,
+      optionA: q.option_a, optionB: q.option_b, optionC: q.option_c, optionD: q.option_d,
+      correctAnswer: q.correct_answer,
+      correctText: q.correct_text
+    }));
+
+    if (!questions.length) {
+      toast('题库为空，请先在管理后台添加题目');
+      goTo('login');
+      return;
+    }
+
+    if (settings.questionOrder === 'random') questions = shuffle([...questions]);
+    questions = questions.map((q, i) => ({ ...q, globalIndex: i + 1 }));
+
+    examState = {
+      questions, currentIndex: 0, answers: {},
+      timeLeft: (parseInt(settings.examDuration) || 30) * 60,
+      timer: null, currentType: 'all',
+      userInfo: LC.get('currentUser', null), settings
+    };
+
+    goTo('exam');
+    renderExamHeader();
+    renderTypeTabs();
+    renderQuestion();
+    renderNavGrid();
+    startTimer();
+  } catch (e) {
+    hideLoading();
+    toast('加载失败：' + (e.message || String(e)));
+  }
+}
+
+function renderExamHeader() {
+  const s = examState.settings || DEFAULT_SETTINGS;
+  document.getElementById('exam-title-text').textContent = s.examTitle || '在线考试';
+  document.getElementById('exam-user-name').textContent = examState.userInfo?.name || '';
+  updateProgress();
+}
+
+function updateProgress() {
+  const total = examState.questions.length;
+  const answered = Object.keys(examState.answers).filter(k => {
+    const v = examState.answers[k];
+    return v !== undefined && v !== '' && v !== null;
+  }).length;
+  document.getElementById('exam-progress-text').textContent = `${examState.currentIndex + 1}/${total}`;
+  document.getElementById('exam-progress-fill').style.width = total > 0 ? `${((examState.currentIndex + 1) / total * 100)}%` : '0%';
+  document.getElementById('exam-answered-count').textContent = `已答${answered}题`;
+}
+
+function renderTypeTabs() {
+  const qs = examState.questions;
+  const typeCounts = {};
+  qs.forEach(q => { const t = q.type || 'single'; typeCounts[t] = (typeCounts[t] || 0) + 1; });
+  let html = `<div class="type-tab ${examState.currentType === 'all' ? 'active' : ''}" onclick="switchType('all')">全部(${qs.length})</div>`;
+  ['single','multiple','judge','fill','essay'].forEach(t => {
+    if (typeCounts[t]) html += `<div class="type-tab ${examState.currentType === t ? 'active' : ''}" onclick="switchType('${t}')">${TYPE_CONFIG[t].name}(${typeCounts[t]})</div>`;
+  });
+  document.getElementById('type-tabs').innerHTML = html;
+}
+
+function switchType(type) {
+  examState.currentType = type;
+  if (type !== 'all') {
+    const idx = examState.questions.findIndex(q => q.type === type);
+    if (idx > -1) examState.currentIndex = idx;
+  }
+  renderTypeTabs(); renderQuestion(); renderNavGrid(); updateProgress();
+}
+
+function renderQuestion() {
+  const q = examState.questions[examState.currentIndex];
+  if (!q) return;
+  const t = q.type || 'single';
+  const cfg = TYPE_CONFIG[t] || TYPE_CONFIG.single;
+  const ans = examState.answers[examState.currentIndex] || '';
+  let optionsHtml = '';
+  if (t === 'single') {
+    ['A','B','C','D'].forEach(letter => {
+      const text = q['option' + letter]; if (!text) return;
+      const sel = ans === letter ? 'selected' : '';
+      optionsHtml += `<div class="option-item ${sel}" onclick="selectAnswer('${letter}')"><div class="option-circle">${letter}</div><div class="option-text">${escHtml(text)}</div></div>`;
+    });
+    optionsHtml = `<div class="options-list">${optionsHtml}</div>`;
+  } else if (t === 'multiple') {
+    ['A','B','C','D'].forEach(letter => {
+      const text = q['option' + letter]; if (!text) return;
+      const sel = (ans || '').includes(letter) ? 'selected' : '';
+      optionsHtml += `<div class="option-item ${sel}" onclick="selectMultiple('${letter}')"><div class="option-circle">${letter}</div><div class="option-text">${escHtml(text)}</div></div>`;
+    });
+    optionsHtml = `<div class="options-list">${optionsHtml}<div style="font-size:12px;color:#f59e0b;margin-top:8px;">⚠️ 多选题，请选择所有正确答案</div></div>`;
+  } else if (t === 'judge') {
+    optionsHtml = `<div class="judge-options"><div class="judge-option ${ans==='A'?'selected':''}" onclick="selectAnswer('A')">✅ 正确</div><div class="judge-option ${ans==='B'?'selected':''}" onclick="selectAnswer('B')">❌ 错误</div></div>`;
+  } else {
+    const placeholder = t === 'fill' ? '请输入答案...' : '请输入您的回答...';
+    optionsHtml = `<textarea class="text-answer-area" placeholder="${placeholder}" oninput="textAnswer(this.value)">${escHtml(ans)}</textarea>`;
+  }
+  document.getElementById('question-area').innerHTML = `
+    <div class="question-card">
+      <div class="question-meta">
+        <span class="q-type-badge" style="background:${cfg.color}">${cfg.name}</span>
+        <span class="q-no">第 ${q.globalIndex} 题</span>
+      </div>
+      <div class="question-content">${escHtml(q.content)}</div>
+      ${optionsHtml}
+    </div>`;
+  document.getElementById('btn-prev').disabled = examState.currentIndex === 0;
+  document.getElementById('btn-next').disabled = examState.currentIndex === examState.questions.length - 1;
+}
+
+function selectAnswer(option) { examState.answers[examState.currentIndex] = option; renderQuestion(); renderNavGrid(); updateProgress(); }
+function selectMultiple(option) {
+  let cur = examState.answers[examState.currentIndex] || '';
+  if (cur.includes(option)) cur = cur.replace(option, ''); else cur += option;
+  cur = cur.split('').sort().join('');
+  examState.answers[examState.currentIndex] = cur;
+  renderQuestion(); renderNavGrid(); updateProgress();
+}
+function textAnswer(val) { examState.answers[examState.currentIndex] = val; renderNavGrid(); updateProgress(); }
+
+function renderNavGrid() {
+  const qs = examState.questions;
+  const curType = examState.currentType;
+  let html = '';
+  qs.forEach((q, i) => {
+    if (curType !== 'all' && q.type !== curType) return;
+    const ans = examState.answers[i];
+    const hasAns = ans !== undefined && ans !== '' && ans !== null;
+    const isCur = i === examState.currentIndex;
+    html += `<div class="nav-btn ${hasAns?'answered':''} ${isCur?'current':''}" onclick="jumpTo(${i})">${q.globalIndex}</div>`;
+  });
+  document.getElementById('nav-grid').innerHTML = html;
+}
+
+function jumpTo(i) { examState.currentIndex = i; renderQuestion(); renderNavGrid(); updateProgress(); document.getElementById('question-area').scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+function prevQuestion() {
+  const { currentIndex, currentType, questions } = examState;
+  if (currentType !== 'all') { for (let i = currentIndex-1; i >= 0; i--) { if (questions[i].type === currentType) { jumpTo(i); return; } } }
+  else if (currentIndex > 0) jumpTo(currentIndex - 1);
+}
+function nextQuestion() {
+  const { currentIndex, currentType, questions } = examState;
+  if (currentType !== 'all') { for (let i = currentIndex+1; i < questions.length; i++) { if (questions[i].type === currentType) { jumpTo(i); return; } } }
+  else if (currentIndex < questions.length - 1) jumpTo(currentIndex + 1);
+}
+
+function startTimer() {
+  updateTimerDisplay();
+  examState.timer = setInterval(() => {
+    examState.timeLeft--;
+    updateTimerDisplay();
+    if (examState.timeLeft === 5 * 60) toast('⏰ 还剩5分钟，请加快答题！');
+    if (examState.timeLeft <= 0) { clearInterval(examState.timer); toast('时间到，自动交卷'); setTimeout(() => submitExam(), 500); }
+  }, 1000);
+}
+function updateTimerDisplay() {
+  const m = Math.floor(examState.timeLeft / 60);
+  const s = examState.timeLeft % 60;
+  const str = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  const el = document.getElementById('exam-timer');
+  if (el) { el.textContent = str; el.className = 'timer' + (examState.timeLeft <= 5*60 ? ' urgent' : ''); }
+}
+
+function confirmSubmit() {
+  const total = examState.questions.length;
+  const answered = Object.keys(examState.answers).filter(k => { const v = examState.answers[k]; return v !== undefined && v !== '' && v !== null; }).length;
+  const unanswered = total - answered;
+  if (unanswered > 0) showModal('确认交卷', `您还有 ${unanswered} 道题未作答，确定要交卷吗？`, submitExam, '确定交卷');
+  else showModal('确认交卷', '确认提交试卷？', submitExam, '确定交卷');
+}
+
+async function submitExam() {
+  clearInterval(examState.timer);
+  const { questions, answers, userInfo, settings } = examState;
+  const passScore = parseInt(settings?.passScore) || 60;
+  let correct = 0;
+  questions.forEach((q, i) => {
+    const ua = answers[i] || '';
+    const t = q.type || 'single';
+    let ok = false;
+    if (t === 'single' || t === 'multiple' || t === 'judge') ok = ua === q.correctAnswer;
+    else { const ct = (q.correctText||'').toLowerCase().trim(); const ut = ua.toLowerCase().trim(); if (ut && ct) ok = ut.includes(ct) || ct.includes(ut); }
+    if (ok) correct++;
+  });
+  const total = questions.length;
+  const score = Math.round(correct / total * 100);
+  const pass = score >= passScore;
+
+  // 写入 Supabase
+  showLoading('正在提交成绩...');
+  try {
+    await SB.insert('exam_records', {
+      user_name: userInfo?.name || '',
+      user_phone: userInfo?.phone || '',
+      score, correct_count: correct, total_count: total, pass_score: passScore,
+      grade: pass ? '及格' : '不及格'
+    });
+    hideLoading();
+  } catch (e) {
+    hideLoading();
+    toast('成绩上传失败（已本地保存）：' + (e.message || ''));
+    // 降级存本地
+    const records = LC.get('pendingRecords', []);
+    records.push({ user_name: userInfo?.name||'', user_phone: userInfo?.phone||'', score, correct_count:correct, total_count:total, pass_score:passScore, grade:pass?'及格':'不及格' });
+    LC.set('pendingRecords', records);
+  }
+
+  LC.del('currentUser');
+  showResult(score, correct, total, pass, passScore, { name: userInfo?.name||'', submitTime: new Date().toLocaleString('zh-CN') });
+}
+
+function showResult(score, correct, total, pass, passScore, record) {
+  goTo('result');
+  document.getElementById('result-icon').textContent = pass ? '🏆' : '📚';
+  document.getElementById('result-score').textContent = score;
+  const gradeEl = document.getElementById('result-grade');
+  gradeEl.textContent = pass ? '✅ 及格' : '❌ 不及格';
+  gradeEl.className = 'result-grade ' + (pass ? 'pass' : 'fail');
+  document.getElementById('result-desc').textContent = pass ? `恭喜您超过及格线 ${passScore} 分！` : `未达到 ${passScore} 分及格线，请继续努力！`;
+  document.getElementById('rs-correct').textContent = correct;
+  document.getElementById('rs-wrong').textContent = total - correct;
+  document.getElementById('rs-accuracy').textContent = Math.round(correct / total * 100) + '%';
+  document.getElementById('rs-info').textContent = `${record.name} · ${record.submitTime}`;
+}
+
+// ============================================================
+//  管理员登录
+// ============================================================
+async function doAdminLogin() {
+  const pwd = document.getElementById('admin-pwd-input').value;
+  showLoading('验证中...');
+  try {
+    const rows = await SB.select('exam_settings', 'id=eq.main&select=admin_password');
+    hideLoading();
+    const correctPwd = (rows && rows[0]?.admin_password) || 'admin123';
+    if (pwd === correctPwd) {
+      LC.set('adminLoggedIn', true);
+      goTo('admin');
+      initAdmin();
+    } else { toast('密码错误'); }
+  } catch {
+    hideLoading();
+    toast('连接失败，请检查网络');
+  }
+}
+function adminLogout() { LC.del('adminLoggedIn'); goTo('login'); }
+
+// ============================================================
+//  管理后台
+// ============================================================
+function initAdmin() { switchAdminTab(adminState.tab); }
+function switchAdminTab(tab) {
+  adminState.tab = tab;
+  document.querySelectorAll('.admin-tab').forEach((el, i) => {
+    el.className = 'admin-tab' + (['settings','questions','scores'][i] === tab ? ' active' : '');
+  });
+  if (tab === 'settings') renderSettings();
+  else if (tab === 'questions') renderQuestions();
+  else if (tab === 'scores') renderScores();
+}
+
+// ---------- 设置 ----------
+async function renderSettings() {
+  showLoading('加载设置...');
+  let s = DEFAULT_SETTINGS;
+  try {
+    const rows = await SB.select('exam_settings', 'id=eq.main');
+    if (rows && rows[0]) {
+      const r = rows[0];
+      s = { examTitle: r.exam_title, examDuration: r.exam_duration, passScore: r.pass_score, questionOrder: r.question_order, adminPassword: r.admin_password, notice: r.notice || '' };
+    }
+    hideLoading();
+  } catch { hideLoading(); toast('设置加载失败，使用缓存'); }
+
+  document.getElementById('admin-content').innerHTML = `
+    <div class="settings-section">
+      <h3>📋 基本设置</h3>
+      <div class="form-group"><label>考试名称</label><input type="text" id="s-title" value="${escHtml(s.examTitle||'GO狗GO 在线考试')}"></div>
+      <div class="form-group"><label>考试时长（分钟）</label><input type="number" id="s-duration" value="${s.examDuration||30}" min="1" max="180"></div>
+      <div class="form-group"><label>及格分数（0-100）</label><input type="number" id="s-pass" value="${s.passScore||60}" min="0" max="100"></div>
+      <div class="form-group"><label>题目顺序</label>
+        <select id="s-order">
+          <option value="sequence" ${s.questionOrder==='sequence'?'selected':''}>顺序出题</option>
+          <option value="random" ${s.questionOrder==='random'?'selected':''}>随机顺序</option>
+        </select>
+      </div>
+      <div class="form-group"><label>考试须知（留空使用默认）</label><textarea id="s-notice" rows="4" style="min-height:80px">${escHtml(s.notice||'')}</textarea></div>
+    </div>
+    <div class="settings-section">
+      <h3>🔐 管理员密码</h3>
+      <div class="form-group"><label>新密码（留空则不修改）</label><input type="password" id="s-pwd" placeholder="留空则不修改"></div>
+    </div>
+    <div class="settings-section">
+      <h3>📤 数据管理</h3>
+      <p style="font-size:13px;color:#888;margin-bottom:12px;">题目和成绩已存储在 Supabase 云端，所有人实时共享</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-ghost btn-sm" onclick="exportScoresCSV()">导出成绩 CSV</button>
+        <button class="btn btn-ghost btn-sm" onclick="reconfigSupabase()">重新配置 Supabase</button>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="saveSettings()" style="margin-top:8px;">💾 保存设置</button>`;
+}
+
+async function saveSettings() {
+  const data = {
+    exam_title: document.getElementById('s-title').value.trim() || 'GO狗GO 在线考试',
+    exam_duration: parseInt(document.getElementById('s-duration').value) || 30,
+    pass_score: parseInt(document.getElementById('s-pass').value) || 60,
+    question_order: document.getElementById('s-order').value,
+    notice: document.getElementById('s-notice').value.trim()
+  };
+  const newPwd = document.getElementById('s-pwd').value;
+  if (newPwd) data.admin_password = newPwd;
+  showLoading('保存中...');
+  try {
+    await SB.update('exam_settings', data, { id: 'main' });
+    hideLoading(); toast('✅ 设置已保存到云端');
+  } catch (e) { hideLoading(); toast('保存失败：' + (e.message || '')); }
+}
+
+function reconfigSupabase() {
+  showModal('重新配置', '确定要重新配置 Supabase 连接？', () => {
+    LC.del('sb_url'); LC.del('sb_key'); LC.del('adminLoggedIn');
+    goTo('setup');
+  }, '确定', true);
+}
+
+// ---------- 题目管理 ----------
+async function renderQuestions() {
+  showLoading('加载题目...');
+  let qs = [];
+  try {
+    const rows = await SB.select('exam_questions', 'order=sort_order.asc,id.asc');
+    qs = (rows || []).map(q => ({ id:q.id, type:q.type, content:q.content, optionA:q.option_a, optionB:q.option_b, optionC:q.option_c, optionD:q.option_d, correctAnswer:q.correct_answer, correctText:q.correct_text }));
+    hideLoading();
+  } catch { hideLoading(); toast('题目加载失败'); }
+
+  let listHtml = '';
+  qs.forEach((q, i) => {
+    const t = q.type || 'single';
+    const cfg = TYPE_CONFIG[t] || TYPE_CONFIG.single;
+    const ansDisplay = t === 'judge' ? (q.correctAnswer==='A'?'正确':'错误') : (q.correctAnswer || q.correctText || '-');
+    listHtml += `
+      <div class="q-item">
+        <div class="q-item-header">
+          <div class="q-no-badge">${i+1}.</div>
+          <div class="q-content-text">${escHtml(q.content)}</div>
+        </div>
+        <div class="q-item-footer">
+          <div>
+            <span class="badge" style="background:${cfg.color}20;color:${cfg.color}">${cfg.name}</span>
+            <span class="q-answer-hint" style="margin-left:8px;">答案：${escHtml(ansDisplay)}</span>
+          </div>
+          <div class="q-item-btns">
+            <button class="btn btn-ghost btn-sm" onclick="editQuestion(${q.id})">编辑</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteQuestion(${q.id})">删除</button>
+          </div>
+        </div>
+      </div>`;
+  });
+
+  document.getElementById('admin-content').innerHTML = `
+    <div class="q-list-header">
+      <h3>📝 题目列表（共${qs.length}题）</h3>
+      <div class="q-actions">
+        <button class="btn btn-ghost btn-sm" onclick="showImportModal()">批量导入</button>
+        <button class="btn btn-primary btn-sm" onclick="editQuestion(0)" style="width:auto;">＋ 添加题目</button>
+      </div>
+    </div>
+    ${listHtml || '<div style="text-align:center;padding:40px;color:#999;">暂无题目，点击右上角添加</div>'}
+    ${qs.length > 0 ? `<div style="margin-top:16px;"><button class="btn btn-danger btn-sm" onclick="clearAllQuestions()">清空所有题目</button></div>` : ''}`;
+}
+
+let _editingQid = 0; // 0 = 新增，>0 = 编辑
+
+async function editQuestion(qid) {
+  _editingQid = qid;
+  let q = { type:'single', content:'', optionA:'', optionB:'', optionC:'', optionD:'', correctAnswer:'A', correctText:'' };
+
+  if (qid > 0) {
+    showLoading('...');
+    try {
+      const rows = await SB.select('exam_questions', `id=eq.${qid}`);
+      if (rows && rows[0]) {
+        const r = rows[0];
+        q = { id:r.id, type:r.type, content:r.content, optionA:r.option_a, optionB:r.option_b, optionC:r.option_c, optionD:r.option_d, correctAnswer:r.correct_answer, correctText:r.correct_text };
+      }
+      hideLoading();
+    } catch { hideLoading(); }
+  }
+
+  const t = q.type || 'single';
+  const typeOptions = Object.entries(TYPE_CONFIG).map(([id, c]) => `<option value="${id}" ${t===id?'selected':''}>${c.name}</option>`).join('');
+  const singleMultiInputs = `
+    <div class="form-group"><label>选项 A</label><input type="text" id="eq-a" value="${escHtml(q.optionA||'')}"></div>
+    <div class="form-group"><label>选项 B</label><input type="text" id="eq-b" value="${escHtml(q.optionB||'')}"></div>
+    <div class="form-group"><label>选项 C</label><input type="text" id="eq-c" value="${escHtml(q.optionC||'')}"></div>
+    <div class="form-group"><label>选项 D</label><input type="text" id="eq-d" value="${escHtml(q.optionD||'')}"></div>`;
+  let answerHtml = '';
+  if (t === 'single') {
+    answerHtml = `<div class="form-group"><label>正确答案</label><div class="answer-selector">${['A','B','C','D'].map(l=>`<button type="button" class="ans-btn ${q.correctAnswer===l?'active':''}" onclick="toggleSingleAns('${l}')">${l}</button>`).join('')}</div></div>`;
+  } else if (t === 'multiple') {
+    const ca = q.correctAnswer || '';
+    answerHtml = `<div class="form-group"><label>正确答案（多选）</label><div class="answer-selector">${['A','B','C','D'].map(l=>`<button type="button" class="ans-btn ${ca.includes(l)?'active':''}" onclick="toggleMultiAns('${l}')">${l}</button>`).join('')}</div></div>`;
+  } else if (t === 'judge') {
+    answerHtml = `<div class="form-group"><label>正确答案</label><div class="answer-selector">
+      <button type="button" class="ans-btn ${q.correctAnswer==='A'?'active':''}" onclick="toggleSingleAns('A')">✅ 正确</button>
+      <button type="button" class="ans-btn ${q.correctAnswer==='B'?'active':''}" onclick="toggleSingleAns('B')">❌ 错误</button>
+    </div></div>`;
+  } else {
+    answerHtml = `<div class="form-group"><label>标准答案</label><input type="text" id="eq-text" value="${escHtml(q.correctText||'')}"></div>`;
+  }
+  const showOptions = t === 'single' || t === 'multiple';
+
+  document.getElementById('admin-content').innerHTML = `
+    <div class="settings-section">
+      <h3>${qid > 0 ? '✏️ 编辑题目' : '➕ 添加题目'}</h3>
+      <div class="form-group"><label>题型</label>
+        <select id="eq-type" onchange="editQuestion(_editingQid)">${typeOptions}</select>
+      </div>
+      <div class="form-group"><label>题目内容</label><textarea id="eq-content" rows="3" style="min-height:80px">${escHtml(q.content||'')}</textarea></div>
+      ${showOptions ? singleMultiInputs : ''}
+      ${answerHtml}
+      <div style="display:flex;gap:10px;margin-top:8px;">
+        <button class="btn btn-primary btn-sm" onclick="saveQuestion()" style="width:auto;">保存题目</button>
+        <button class="btn btn-ghost btn-sm" onclick="renderQuestions()">取消</button>
+      </div>
+    </div>`;
+
+  // 让题型切换时保留已填内容
+  document.getElementById('eq-type').onchange = function() {
+    // 临时保存content
+    const newType = this.value;
+    const curContent = document.getElementById('eq-content')?.value || '';
+    _editingQid = qid;
+    // 重新渲染（把当前填的content带进去）
+    const fakeQ = { ...q, type: newType, content: curContent,
+      optionA: document.getElementById('eq-a')?.value||q.optionA||'',
+      optionB: document.getElementById('eq-b')?.value||q.optionB||'',
+      optionC: document.getElementById('eq-c')?.value||q.optionC||'',
+      optionD: document.getElementById('eq-d')?.value||q.optionD||'',
+    };
+    q = fakeQ;
+    // 重新渲染答案区
+    editQuestionInPlace(fakeQ);
+  };
+}
+
+function editQuestionInPlace(q) {
+  const t = q.type;
+  const typeOptions = Object.entries(TYPE_CONFIG).map(([id, c]) => `<option value="${id}" ${t===id?'selected':''}>${c.name}</option>`).join('');
+  const singleMultiInputs = `
+    <div class="form-group"><label>选项 A</label><input type="text" id="eq-a" value="${escHtml(q.optionA||'')}"></div>
+    <div class="form-group"><label>选项 B</label><input type="text" id="eq-b" value="${escHtml(q.optionB||'')}"></div>
+    <div class="form-group"><label>选项 C</label><input type="text" id="eq-c" value="${escHtml(q.optionC||'')}"></div>
+    <div class="form-group"><label>选项 D</label><input type="text" id="eq-d" value="${escHtml(q.optionD||'')}"></div>`;
+  let answerHtml = '';
+  if (t === 'single') {
+    answerHtml = `<div class="form-group"><label>正确答案</label><div class="answer-selector">${['A','B','C','D'].map(l=>`<button type="button" class="ans-btn" onclick="toggleSingleAns('${l}')">${l}</button>`).join('')}</div></div>`;
+  } else if (t === 'multiple') {
+    answerHtml = `<div class="form-group"><label>正确答案（多选）</label><div class="answer-selector">${['A','B','C','D'].map(l=>`<button type="button" class="ans-btn" onclick="toggleMultiAns('${l}')">${l}</button>`).join('')}</div></div>`;
+  } else if (t === 'judge') {
+    answerHtml = `<div class="form-group"><label>正确答案</label><div class="answer-selector">
+      <button type="button" class="ans-btn" onclick="toggleSingleAns('A')">✅ 正确</button>
+      <button type="button" class="ans-btn" onclick="toggleSingleAns('B')">❌ 错误</button>
+    </div></div>`;
+  } else {
+    answerHtml = `<div class="form-group"><label>标准答案</label><input type="text" id="eq-text" value=""></div>`;
+  }
+  const showOptions = t === 'single' || t === 'multiple';
+  document.getElementById('admin-content').innerHTML = `
+    <div class="settings-section">
+      <h3>${_editingQid > 0 ? '✏️ 编辑题目' : '➕ 添加题目'}</h3>
+      <div class="form-group"><label>题型</label><select id="eq-type">${typeOptions}</select></div>
+      <div class="form-group"><label>题目内容</label><textarea id="eq-content" rows="3" style="min-height:80px">${escHtml(q.content||'')}</textarea></div>
+      ${showOptions ? singleMultiInputs : ''}
+      ${answerHtml}
+      <div style="display:flex;gap:10px;margin-top:8px;">
+        <button class="btn btn-primary btn-sm" onclick="saveQuestion()" style="width:auto;">保存题目</button>
+        <button class="btn btn-ghost btn-sm" onclick="renderQuestions()">取消</button>
+      </div>
+    </div>`;
+  document.getElementById('eq-type').addEventListener('change', function() {
+    const nc = document.getElementById('eq-content')?.value||'';
+    editQuestionInPlace({...q, type:this.value, content:nc});
+  });
+}
+
+function toggleSingleAns(letter) { document.querySelectorAll('.answer-selector .ans-btn').forEach(b => b.classList.remove('active')); event.target.classList.add('active'); }
+function toggleMultiAns(letter) { event.target.classList.toggle('active'); }
+
+async function saveQuestion() {
+  const type = document.getElementById('eq-type').value;
+  const content = (document.getElementById('eq-content')?.value || '').trim();
+  if (!content) { toast('请输入题目内容'); return; }
+
+  const data = { type, content, option_a:'', option_b:'', option_c:'', option_d:'', correct_answer:'', correct_text:'', sort_order: Date.now() };
+
+  if (type === 'single' || type === 'multiple') {
+    data.option_a = (document.getElementById('eq-a')?.value||'').trim();
+    data.option_b = (document.getElementById('eq-b')?.value||'').trim();
+    data.option_c = (document.getElementById('eq-c')?.value||'').trim();
+    data.option_d = (document.getElementById('eq-d')?.value||'').trim();
+    if (!data.option_a || !data.option_b || !data.option_c || !data.option_d) { toast('请填写所有选项'); return; }
+    const activeLetters = [...document.querySelectorAll('.answer-selector .ans-btn.active')].map(b => b.textContent.trim().charAt(0));
+    if (!activeLetters.length) { toast('请选择正确答案'); return; }
+    if (type === 'multiple' && activeLetters.length < 2) { toast('多选题请选择至少2个答案'); return; }
+    data.correct_answer = activeLetters.sort().join('');
+  } else if (type === 'judge') {
+    const activeBtn = document.querySelector('.answer-selector .ans-btn.active');
+    if (!activeBtn) { toast('请选择正确答案'); return; }
+    data.correct_answer = activeBtn.textContent.includes('正确') ? 'A' : 'B';
+  } else {
+    data.correct_text = (document.getElementById('eq-text')?.value||'').trim();
+    if (!data.correct_text) { toast('请填写标准答案'); return; }
+  }
+
+  showLoading('保存中...');
+  try {
+    if (_editingQid > 0) {
+      await SB.update('exam_questions', data, { id: _editingQid });
+      hideLoading(); toast('✅ 修改成功');
+    } else {
+      await SB.insert('exam_questions', data);
+      hideLoading(); toast('✅ 添加成功');
+    }
+    renderQuestions();
+  } catch (e) { hideLoading(); toast('保存失败：' + (e.message || '')); }
+}
+
+async function deleteQuestion(qid) {
+  showModal('确认删除', '确定要删除这道题目吗？', async () => {
+    showLoading('删除中...');
+    try { await SB.del('exam_questions', { id: qid }); hideLoading(); toast('已删除'); renderQuestions(); }
+    catch (e) { hideLoading(); toast('删除失败：' + (e.message||'')); }
+  }, '删除', true);
+}
+
+async function clearAllQuestions() {
+  showModal('清空题目', '确定要清空所有题目吗？此操作不可恢复！', async () => {
+    showLoading('清空中...');
+    try {
+      // 删除全部：用 neq id 0（Supabase REST 需要条件才能 DELETE）
+      const rows = await SB.select('exam_questions', 'select=id');
+      for (const r of rows) await SB.del('exam_questions', { id: r.id });
+      hideLoading(); toast('已清空'); renderQuestions();
+    } catch (e) { hideLoading(); toast('清空失败：' + (e.message||'')); }
+  }, '清空', true);
+}
+
+// 批量导入
+function showImportModal() {
+  const template = `【单选】1+1等于多少？\nA.1 B.2 C.3 D.4\n答案:B\n【分隔】\n【多选】以下哪些是水果？\nA.苹果 B.香蕉 C.萝卜 D.葡萄\n答案:ABD\n【分隔】\n【判断】太阳从东方升起\n答案:正确\n【分隔】\n【填空】中国的首都是____\n答案:北京`;
+  document.getElementById('admin-content').innerHTML = `
+    <div class="settings-section">
+      <h3>📥 批量导入题目</h3>
+      <div class="import-hint">每题用 <code>【分隔】</code> 分开，支持 <code>【单选】【多选】【判断】【填空】【问答】</code></div>
+      <div class="form-group" style="margin-top:14px;"><label>粘贴题目内容</label>
+        <textarea class="import-textarea" id="import-text" placeholder="粘贴题目...">${escHtml(template)}</textarea>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-primary btn-sm" onclick="doImport()" style="width:auto;">开始导入</button>
+        <button class="btn btn-ghost btn-sm" onclick="renderQuestions()">取消</button>
+      </div>
+    </div>`;
+}
+
+async function doImport() {
+  const text = document.getElementById('import-text')?.value.trim();
+  if (!text) { toast('请粘贴题目内容'); return; }
+  const blocks = text.split('【分隔】');
+  const valid = [], errors = [];
+  blocks.forEach((b, i) => { const q = parseQuestionBlock(b.trim()); if (q) valid.push(q); else if (b.trim().length > 4) errors.push(i+1); });
+  if (!valid.length) { toast('没有解析到有效题目，请检查格式'); return; }
+
+  showLoading(`正在导入 ${valid.length} 道题目...`);
+  try {
+    const insertData = valid.map((q, idx) => ({
+      type: q.type, content: q.content,
+      option_a: q.optionA||'', option_b: q.optionB||'', option_c: q.optionC||'', option_d: q.optionD||'',
+      correct_answer: q.correctAnswer||'', correct_text: q.correctText||'',
+      sort_order: Date.now() + idx
+    }));
+    await SB.insert('exam_questions', insertData);
+    hideLoading();
+    toast(`✅ 成功导入 ${valid.length} 题${errors.length ? `，${errors.length} 题格式错误` : ''}`);
+    renderQuestions();
+  } catch (e) { hideLoading(); toast('导入失败：' + (e.message||'')); }
+}
+
+function parseQuestionBlock(block) {
+  if (!block || block.length < 4) return null;
+  const clean = block.replace(/　/g,' ').replace(/\r\n/g,'\n').replace(/\r/g,'\n').trim();
+  const lines = clean.split('\n').map(l=>l.trim()).filter(Boolean);
+  if (lines.length < 2) return null;
+  let type = '';
+  const fl = lines[0];
+  if (fl.includes('【单选】')) type = 'single';
+  else if (fl.includes('【多选】')) type = 'multiple';
+  else if (fl.includes('【判断】')) type = 'judge';
+  else if (fl.includes('【填空】')) type = 'fill';
+  else if (fl.includes('【问答】')) type = 'essay';
+  else return null;
+  const content = fl.replace(/【(单选|多选|判断|填空|问答)】/, '').trim();
+  if (!content) return null;
+  const q = { type, content, optionA:'', optionB:'', optionC:'', optionD:'', correctAnswer:'', correctText:'' };
+  let answer = '';
+  for (const line of lines) {
+    if (/答案/.test(line)) {
+      const idx = line.indexOf('答案');
+      answer = line.substring(idx+2).replace(/^[:：]\s*/,'').trim();
+      if (answer) break;
+    }
+  }
+  if (!answer) return null;
+  if (type === 'single' || type === 'multiple') {
+    for (const line of lines) {
+      const parts = line.split(/\s+(?=[A-D][.．])/);
+      for (const part of parts) {
+        const m = part.match(/^([A-D])[.．:：]\s*(.+)/);
+        if (m) { const letter=m[1], val=m[2].trim(); if(letter==='A')q.optionA=val; if(letter==='B')q.optionB=val; if(letter==='C')q.optionC=val; if(letter==='D')q.optionD=val; }
+      }
+    }
+    q.correctAnswer = answer.toUpperCase().split('').filter(c=>'ABCD'.includes(c)).sort().join('') || 'A';
+  } else if (type === 'judge') {
+    q.correctAnswer = /^[正对Tt是]/.test(answer) ? 'A' : 'B';
+  } else {
+    q.correctText = answer;
+  }
+  return q;
+}
+
+// ---------- 成绩查看 ----------
+async function renderScores() {
+  showLoading('加载成绩...');
+  let records = [];
+  try {
+    const rows = await SB.select('exam_records', 'order=submit_time.desc');
+    records = rows || [];
+    hideLoading();
+  } catch { hideLoading(); toast('成绩加载失败'); }
+
+  const passScore = LC.get('cachedSettings', {})?.pass_score || 60;
+  const total = records.length;
+  const avgScore = total ? Math.round(records.reduce((s,r) => s+r.score, 0) / total) : 0;
+  const passCount = records.filter(r => r.score >= passScore).length;
+  const passRate = total ? Math.round(passCount / total * 100) : 0;
+
+  let tableRows = records.map((r, i) => `
+    <tr>
+      <td>${escHtml(r.user_name)}</td>
+      <td>${escHtml(r.user_phone)}</td>
+      <td><strong>${r.score}</strong></td>
+      <td>${r.correct_count}/${r.total_count}</td>
+      <td><span class="badge badge-${r.score>=passScore?'pass':'fail'}">${r.grade}</span></td>
+      <td style="font-size:12px;color:#999;">${new Date(r.submit_time).toLocaleString('zh-CN')}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="deleteScore(${r.id})">删</button></td>
+    </tr>`).join('');
+
+  document.getElementById('admin-content').innerHTML = `
+    <div class="score-stats">
+      <div class="score-stat-card"><div class="score-stat-value">${total}</div><div class="score-stat-label">参考人数</div></div>
+      <div class="score-stat-card"><div class="score-stat-value">${avgScore}</div><div class="score-stat-label">平均分</div></div>
+      <div class="score-stat-card"><div class="score-stat-value">${passRate}%</div><div class="score-stat-label">及格率</div></div>
+    </div>
+    <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
+      <button class="btn btn-ghost btn-sm" onclick="exportScoresCSV()">📥 导出CSV</button>
+      <button class="btn btn-danger btn-sm" onclick="clearAllScores()">清空成绩</button>
+    </div>
+    <div class="score-table-wrap">
+      <table class="score-table">
+        <thead><tr><th>姓名</th><th>手机号</th><th>分数</th><th>答对</th><th>等级</th><th>时间</th><th>操作</th></tr></thead>
+        <tbody>${tableRows || '<tr><td colspan="7" style="text-align:center;color:#999;padding:24px;">暂无成绩记录</td></tr>'}</tbody>
+      </table>
+    </div>`;
+}
+
+async function exportScoresCSV() {
+  showLoading('导出中...');
+  try {
+    const rows = await SB.select('exam_records', 'order=submit_time.desc');
+    hideLoading();
+    if (!rows || !rows.length) { toast('暂无成绩数据'); return; }
+    let csv = '\uFEFF姓名,手机号,分数,答对,总题数,等级,提交时间\n';
+    rows.forEach(r => { csv += `${r.user_name},${r.user_phone},${r.score},${r.correct_count},${r.total_count},${r.grade},${new Date(r.submit_time).toLocaleString('zh-CN')}\n`; });
+    download(csv, `考试成绩_${new Date().toLocaleDateString('zh-CN').replace(/\//g,'-')}.csv`, 'text/csv');
+  } catch (e) { hideLoading(); toast('导出失败：' + (e.message||'')); }
+}
+
+async function deleteScore(id) {
+  showModal('确认删除', '确定删除这条成绩记录吗？', async () => {
+    showLoading('删除中...');
+    try { await SB.del('exam_records', { id }); hideLoading(); toast('已删除'); renderScores(); }
+    catch (e) { hideLoading(); toast('删除失败：' + (e.message||'')); }
+  }, '删除', true);
+}
+
+async function clearAllScores() {
+  showModal('清空成绩', '确定要清空所有成绩记录吗？此操作不可恢复！', async () => {
+    showLoading('清空中...');
+    try {
+      const rows = await SB.select('exam_records', 'select=id');
+      for (const r of rows) await SB.del('exam_records', { id: r.id });
+      hideLoading(); toast('已清空'); renderScores();
+    } catch (e) { hideLoading(); toast('清空失败：' + (e.message||'')); }
+  }, '清空', true);
+}
+
+// ============================================================
+//  工具函数
+// ============================================================
+function shuffle(arr) { for (let i = arr.length-1; i > 0; i--) { const j = Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } return arr; }
+function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+function download(content, filename, type) { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([content], {type})); a.download = filename; a.click(); }
+
+// ============================================================
+//  初始化
+// ============================================================
+window.addEventListener('DOMContentLoaded', () => {
+  const savedUrl = LC.get('sb_url', '');
+  const savedKey = LC.get('sb_key', '');
+
+  if (savedUrl && savedKey) {
+    SB.init(savedUrl, savedKey);
+    if (LC.get('adminLoggedIn', false) && location.hash === '#admin') {
+      goTo('admin'); initAdmin();
+    } else {
+      goTo('login'); initLogin();
+    }
+  } else {
+    goTo('setup');
+  }
+});
+</script>
+</body>
+</html>

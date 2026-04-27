@@ -1,0 +1,73 @@
+/* miniprogram/pages/admin/home/home.wxss */
+.container {
+  min-height: 100vh;
+  background: #f5f6fa;
+  padding: 0;
+}
+
+.header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 40rpx 30rpx;
+  text-align: center;
+}
+
+.title {
+  color: #fff;
+  font-size: 40rpx;
+  font-weight: bold;
+}
+
+.menu-grid {
+  padding: 30rpx;
+}
+
+.menu-item {
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 40rpx 30rpx;
+  margin-bottom: 30rpx;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.05);
+}
+
+.menu-icon {
+  font-size: 60rpx;
+  margin-right: 30rpx;
+}
+
+.menu-text {
+  font-size: 34rpx;
+  color: #333;
+  font-weight: bold;
+  display: block;
+}
+
+.menu-desc {
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 8rpx;
+  display: block;
+}
+
+.menu-item:active {
+  background: #f0f0f0;
+}
+
+.menu-item.logout {
+  border: 2rpx solid #ff6b6b;
+}
+
+.menu-item.logout .menu-text {
+  color: #ff6b6b;
+}
+
+.footer {
+  text-align: center;
+  padding: 40rpx;
+}
+
+.version {
+  font-size: 24rpx;
+  color: #ccc;
+}

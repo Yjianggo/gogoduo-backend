@@ -1,0 +1,100 @@
+<!-- miniprogram/pages/admin/exam/exam.wxml -->
+<view class="container">
+  <!-- 顶部导航 -->
+  <view class="nav-bar">
+    <text class="nav-back" bindtap="goBack">← 返回</text>
+    <text class="nav-title">考试设置</text>
+    <text class="nav-placeholder"></text>
+  </view>
+
+  <!-- 设置表单 -->
+  <view class="form-container">
+    
+    <!-- 基本设置 -->
+    <view class="section">
+      <view class="section-title">基本设置</view>
+      
+      <!-- 考试标题 -->
+      <view class="form-group">
+        <text class="form-label">考试标题</text>
+        <input 
+          class="form-input" 
+          value="{{examTitle}}"
+          bindinput="onTitleInput"
+          placeholder="请输入考试标题"
+        />
+      </view>
+
+      <!-- 考试时长 -->
+      <view class="form-group">
+        <text class="form-label">考试时长（分钟）</text>
+        <input 
+          class="form-input" 
+          type="number"
+          value="{{examDuration}}"
+          bindinput="onDurationInput"
+          placeholder="请输入考试时长"
+        />
+        <text class="form-hint">考生必须在设定时间内完成考试</text>
+      </view>
+
+      <!-- 考试人数限制 -->
+      <view class="form-group">
+        <text class="form-label">考试人数上限</text>
+        <input 
+          class="form-input" 
+          type="number"
+          value="{{examLimit}}"
+          bindinput="onLimitInput"
+          placeholder="请输入考试人数上限"
+        />
+        <text class="form-hint">允许参加考试的最多人数，达到上限后禁止入场</text>
+      </view>
+
+      <!-- 及格分数 -->
+      <view class="form-group">
+        <text class="form-label">及格分数</text>
+        <input 
+          class="form-input" 
+          type="number"
+          value="{{passScore}}"
+          bindinput="onPassScoreInput"
+          placeholder="请输入及格分数"
+        />
+        <text class="form-hint">满分100分，当前设置为{{passScore}}分</text>
+      </view>
+
+      <!-- 题目顺序 -->
+      <view class="form-group">
+        <text class="form-label">题目答题顺序</text>
+        <picker mode="selector" range="{{['按题目管理顺序答题', '随机顺序答题']}}" bindchange="onOrderChange">
+          <view class="picker-value">
+            {{questionOrder === 'sequence' ? '按题目管理顺序答题' : '随机顺序答题'}}
+          </view>
+        </picker>
+        <text class="form-hint">决定考生看到题目的顺序</text>
+      </view>
+    </view>
+
+    <!-- 考试须知 -->
+    <view class="section">
+      <view class="section-title">考试须知</view>
+      <view class="form-group">
+        <textarea 
+          class="form-textarea" 
+          value="{{examNotice}}"
+          bindinput="onNoticeInput"
+          placeholder="请输入考试须知内容"
+          maxlength="500"
+          style="white-space: pre-line;"
+        />
+        <text class="form-hint">{{examNotice.length || 0}}/500</text>
+      </view>
+    </view>
+
+    <!-- 保存按钮 -->
+    <button class="save-btn" bindtap="saveSettings">
+      保存设置
+    </button>
+  </view>
+</view>

@@ -1,0 +1,78 @@
+/* miniprogram/pages/admin/exam/exam.wxss */
+.container {
+  min-height: 100vh;
+  background: #f5f7fa;
+  padding: 30rpx;
+}
+
+.section {
+  margin-bottom: 40rpx;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20rpx;
+}
+
+.form-card {
+  background: white;
+  border-radius: 20rpx;
+  padding: 30rpx;
+  box-shadow: 0 5rpx 15rpx rgba(0, 0, 0, 0.05);
+}
+
+.form-item {
+  margin-bottom: 30rpx;
+}
+
+.form-item:last-child {
+  margin-bottom: 0;
+}
+
+.form-label {
+  font-size: 28rpx;
+  color: #666;
+  display: block;
+  margin-bottom: 15rpx;
+}
+
+.form-input {
+  height: 90rpx;
+  background: #f8f9fa;
+  border-radius: 15rpx;
+  padding: 0 25rpx;
+  font-size: 30rpx;
+  color: #333;
+  border: 2rpx solid #e9ecef;
+}
+
+.notice-textarea {
+  width: 100%;
+  min-height: 300rpx;
+  background: #f8f9fa;
+  border-radius: 15rpx;
+  padding: 25rpx;
+  font-size: 30rpx;
+  color: #333;
+  box-sizing: border-box;
+  border: 2rpx solid #e9ecef;
+}
+
+.save-section {
+  padding: 20rpx 0;
+}
+
+.save-btn {
+  height: 100rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 50rpx;
+  color: white;
+  font-size: 34rpx;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10rpx 30rpx rgba(102, 126, 234, 0.4);
+}

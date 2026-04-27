@@ -1,0 +1,68 @@
+<view class="container">
+  <view class="result-header">
+    <text class="result-icon">🎉</text>
+    <text class="result-title">考试完成</text>
+  </view>
+
+  <view class="score-card">
+    <view class="score-circle">
+      <view class="score-inner">
+        <text class="score-value">{{score}}</text>
+        <text class="score-label">得分</text>
+      </view>
+    </view>
+    
+    <view class="score-info">
+      <view class="info-item">
+        <text class="info-label">正确题数</text>
+        <text class="info-value correct">{{correctCount}}</text>
+      </view>
+      <view class="info-divider"></view>
+      <view class="info-item">
+        <text class="info-label">总题数</text>
+        <text class="info-value">{{totalCount}}</text>
+      </view>
+      <view class="info-divider"></view>
+      <view class="info-item">
+        <text class="info-label">及格分数</text>
+        <text class="info-value">{{passScore}}分</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="stats-card">
+    <text class="card-title">考试统计</text>
+    <view class="stats-grid">
+      <view class="stat-item">
+        <text class="stat-value">{{accuracy}}%</text>
+        <text class="stat-label">正确率</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-value">{{wrongCount}}</text>
+        <text class="stat-label">错误题数</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-value">{{unansweredCount}}</text>
+        <text class="stat-label">未答题数</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="grade-card">
+    <text class="card-title">成绩等级</text>
+    <view class="grade-display">
+      <text class="grade-text {{gradeClass}}">{{grade}}</text>
+      <text class="grade-desc">{{gradeDesc}}</text>
+    </view>
+  </view>
+
+  <view class="action-section">
+    <button class="btn-primary" bindtap="goHome">
+      <text>返回首页</text>
+    </button>
+  </view>
+
+  <view class="footer">
+    <text class="footer-text">感谢使用在线考试系统</text>
+  </view>
+</view>

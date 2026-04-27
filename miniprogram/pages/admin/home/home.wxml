@@ -1,0 +1,43 @@
+<!--miniprogram/pages/admin/home/home.wxml-->
+<view class="container">
+  <!-- 顶部导航 -->
+  <view class="header">
+    <text class="title">考试管理系统</text>
+  </view>
+
+  <!-- 功能菜单 -->
+  <view class="menu-grid">
+    <!-- 考试设置 -->
+    <view class="menu-item" bindtap="goToExam">
+      <view class="menu-icon">⚙️</view>
+      <text class="menu-text">考试设置</text>
+      <text class="menu-desc">设置考试标题、时长、题目数量</text>
+    </view>
+
+    <!-- 题目管理 -->
+    <view class="menu-item" bindtap="goToQuestions">
+      <view class="menu-icon">📝</view>
+      <text class="menu-text">题目管理</text>
+      <text class="menu-desc">添加、编辑、删除考试题目</text>
+    </view>
+
+    <!-- 成绩汇总 -->
+    <view class="menu-item" bindtap="goToScores">
+      <view class="menu-icon">📊</view>
+      <text class="menu-text">成绩汇总</text>
+      <text class="menu-desc">查看考生成绩、导出Excel</text>
+    </view>
+
+    <!-- 退出登录 -->
+    <view class="menu-item logout" bindtap="logout">
+      <view class="menu-icon">🚪</view>
+      <text class="menu-text">退出登录</text>
+      <text class="menu-desc">返回考生登录页面</text>
+    </view>
+  </view>
+
+  <!-- 版本信息 -->
+  <view class="footer">
+    <text class="version">考试管理系统 v1.0</text>
+  </view>
+</view>

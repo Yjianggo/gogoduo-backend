@@ -1,0 +1,20 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/login/login",
+    "pages/exam/exam",
+    "pages/result/result",
+    "pages/admin/index/index",
+    "pages/admin/home/home",
+    "pages/admin/exam/exam",
+    "pages/admin/questions/questions",
+    "pages/admin/scores/scores"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#667eea",
+    "navigationBarTitleText": "在线考试",
+    "navigationBarTextStyle": "white"
+  },
+  "sitemapLocation": "sitemap.json"
+}
